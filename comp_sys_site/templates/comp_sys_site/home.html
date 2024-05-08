@@ -6,6 +6,54 @@
 {% endblock extra_css %}
 
 {% block content %}
-    <h5>Comp Sys Rankings</h5>
+<h1>Rankings</h1>
 
-{% endblock content %}
+<table id="rankings-table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Institution</th>
+            <th>Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for institution, data in sorted_ranks.items %}
+        <tr data-institution="{{ institution }}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ institution }}</td>
+            <td>{{ data.score }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        var institutionData = {{ sorted_ranks|safe }};
+
+        $('#rankings-table tbody tr').click(function() {
+            var institution = $(this).data('institution');
+            var authors = institutionData[institution].school_authors;
+
+            if ($(this).next().hasClass('sub-table-row')) {
+                $(this).next().remove();
+            } else {
+                var subTableHtml = '<tr class="sub-table-row"><td colspan="3"><table class="sub-table">';
+                subTableHtml += '<thead><tr><th>Faculty</th><th>Publications</th><th>Adjusted Score</th></tr></thead>';
+                subTableHtml += '<tbody>';
+
+                if (Object.keys(authors).length > 0) {
+                    for (var author in authors) {
+                        subTableHtml += '<tr><td>' + author + '</td><td></td><td>' + authors[author] + '</td></tr>';
+                    }
+                } else {
+                    subTableHtml += '<tr><td colspan="3">No data available</td></tr>';
+                }
+
+                subTableHtml += '</tbody></table></td></tr>';
+                $(this).after(subTableHtml);
+            }
+        });
+    });
+</script>
+{% endblock %}

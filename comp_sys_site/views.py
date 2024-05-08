@@ -1,4 +1,6 @@
-import csv
+import json
+from decimal import Decimal
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from . import views_helpers as vh
@@ -13,126 +15,71 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def common_entries(*dictionaries):
+    """
+    Iterate over multiple dictionaries simultaneously and yield common entries.
+
+    Args:
+        *dictionaries: Variable number of dictionaries.
+
+    Yields:
+        tuple: A tuple containing the common key and the corresponding values
+               from each dictionary.
+
+    Description:
+        This function takes a variable number of dictionaries as arguments and
+        iterates over their common entries. It yields a tuple for each common
+        entry, where the first element is the key itself, and the subsequent
+        elements are the corresponding values from each dictionary.
+
+    Example:
+        dict1 = {'a': 1, 'b': 2, 'c': 3}
+        dict2 = {'a': 4, 'b': 5, 'd': 6}
+        dict3 = {'a': 7, 'c': 8, 'd': 9}
+
+        for entry in common_entries(dict1, dict2, dict3):
+            print(entry)
+
+        Output:
+            ('a', 1, 4, 7)
+
+    Note:
+        - If no dictionaries are provided, the function returns immediately.
+        - The order of the dictionaries passed to the function determines the
+          order of the values in the yielded tuples.
+        - Only the keys present in all the dictionaries are considered common
+          and included in the iteration.
+    """
+    if not dictionaries:
+        return
+    for i in set(dictionaries[0]).intersection(*dictionaries[1:]):
+        yield (i,) + tuple(d[i] for d in dictionaries)
+
+
 def home(request):
     template = f'{template_dir}home.html'
-    return render(request, template)
+    school_authors = {'UCSC': {'Emanuele Trucco': Decimal('4.239108887328701570187638301'),
+                               'Annalu Waller': Decimal('6.640949633441893503813008455')
+                               },
+                      'Purdue': {'huirbnv': Decimal('4.239108887328701570187638301'),
+                                 'nreuiovn': Decimal('6.640949633441893503813008455')
+                                 },
+                      'USC': {'Trucco': Decimal('4.239108887328701570187638301'),
+                              'Waller': Decimal('6.640949633441893503813008455')
+                              }
+                      }
 
+    # get current ranking data
+    with open('comp_sys_site/static/required_files/rankings.json') as rankings:
+        ranks = json.load(rankings)
+        sorted_ranks = dict(sorted(ranks.items(), key=lambda x: x[1], reverse=True))
+        logger.info(sorted_ranks)
 
-def about(request):
-    template = f'{template_dir}about.html'
-    return render(request, template)
+        # Convert Decimal objects to float
+        for school, data in sorted_ranks.items():
+            authors = school_authors.get(school, {})
+            for author, score in authors.items():
+                authors[author] = float(score)
+            sorted_ranks[school] = {"score": data, "school_authors": authors}
 
-
-def team(request):
-    template = f'{template_dir}team.html'
-    return render(request, template)
-
-
-def news(request):
-    template = f'{template_dir}news.html'
-    return render(request, template)
-
-
-def repository_simple_search(request):
-    logger.info("Processing repository simple search")
-    template = f'{template_dir}simple-repository-search.html'
-
-    context = {'data': None, 'error_message': None, 'user_input': '', 'truncated': False}
-    host_search_type = 'host'
-    job_search_type = 'job'
-    job_search_error = """
-              Invalid search query. Valid formats include:
-              <div>
-                  <p>Group IDs starting with 'GROUP' followed by digits (e.g., 'GROUP87')</p>
-                  <p>Job IDs starting with 'JOB' followed by digits (e.g., 'JOB205067')</p>
-                  <p>User IDs starting with 'USER' followed by digits (e.g., 'USER240')</p>
-                  <p>Job names starting with 'JOBNAME' followed by digits (e.g., 'JOBNAME20502')</p>
-                  <p>Node IDs starting with 'NODE' followed by digits (e.g., 'NODE3')</p>
-                  <p>Specific exit codes: 'CANCELLED', 'COMPLETED', 'FAILED', 'NODE_FAIL', 'TIMEOUT'</p>
-              </div>
-              Please try again with a correct format.
-              """
-
-    form_type = request.POST.get('form_type')
-    context['form_type'] = form_type
-
-    user_input = ""
-    result = []
-
-    # Process the host data search
-    if request.method == 'POST' and form_type == 'host_data':
-        user_input = request.POST.get('input_field', '')
-        user_input = vh.clean_and_uppercase(user_input)
-        context['user_input'] = user_input
-        logger.info("Host data search with user input: %s", user_input)
-
-        if not vh.is_valid_host_search(user_input):
-            context['error_message'] = "Invalid search query. Please try again."
-            logger.warning("Invalid host search query: %s", user_input)
-            return render(request, template, context)
-
-        result = vh.send_simple_search_request(user_input, host_search_type)
-
-    elif request.method == 'POST' and form_type == 'job_data':
-        # Process the job data search
-        user_input = request.POST.get('input_field', '')
-        user_input = vh.clean_and_uppercase(user_input)
-        context['user_input'] = user_input
-        logger.info("Job data search with user input: %s", user_input)
-
-        if not vh.is_valid_job_search(user_input):
-            context['error_message'] = job_search_error
-            logger.warning("Invalid job search query: %s", user_input)
-
-        result = vh.send_simple_search_request(user_input, job_search_type)
-
-    if type(result) is str or result is None:
-        context['error_message'] = f"No data found for {user_input}"
-        logger.warning("Search did not return data for: %s", user_input)
-    else:
-        context['data'] = result
-        if len(result) >= ROW_LIMIT:
-            context['truncated'] = True  # Flag to indicate results are truncated
-            logger.info("Search results truncated for: %s", user_input)
-
-    return render(request, template, context)
-
-
-def download_search_results_as_csv(request):
-    logger.info("Initiating download of search results as CSV")
-
-    search_type_map = {'host_data': 'host', 'job_data': 'job'}
-    search_type = search_type_map.get(request.POST.get('form_type'), "none")
-
-    if request.method == 'POST':
-        search_query = request.POST.get('search_query')
-        logger.info("Downloading CSV for search type: %s, query: %s", search_type, search_query)
-
-        # Perform the search again or retrieve the results
-        data = vh.send_simple_search_request(search_query, search_type)
-
-        try:
-            # Get current time
-            current_time = datetime.now().strftime("%Y%m%d-%H%M")
-
-            # Create the HttpResponse object with the appropriate CSV header.
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="{search_type}_search_results_{current_time}.csv"'
-
-            writer = csv.writer(response)
-            if data:
-                # Write CSV headers
-                writer.writerow(data[0].keys())
-
-                # Write data rows
-                for item in data:
-                    writer.writerow(item.values())
-
-                logger.info("CSV file created and data written successfully")
-            else:
-                logger.warning("No data available to write to CSV")
-        except Exception as e:
-            logger.error(f"Error occurred while creating CSV: {e}")
-            return HttpResponse("An error occurred while generating the CSV file.", status=500)
-
-        return response
+        return render(request, template, {'sorted_ranks': sorted_ranks})
