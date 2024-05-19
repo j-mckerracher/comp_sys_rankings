@@ -13,7 +13,7 @@
         <tr>
             <th>#</th>
             <th>Institution</th>
-            <th>Count</th>
+            <th>Total Score</th>
         </tr>
     </thead>
     <tbody>
@@ -21,7 +21,7 @@
         <tr data-institution="{{ institution }}">
             <td>{{ forloop.counter }}</td>
             <td>{{ institution }}</td>
-            <td>{{ data.score }}</td>
+            <td>{{ data.total_score }}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -33,18 +33,20 @@
 
         $('#rankings-table tbody tr').click(function() {
             var institution = $(this).data('institution');
-            var authors = institutionData[institution].school_authors;
+            var authors = institutionData[institution].authors;
 
             if ($(this).next().hasClass('sub-table-row')) {
                 $(this).next().remove();
             } else {
                 var subTableHtml = '<tr class="sub-table-row"><td colspan="3"><table class="sub-table">';
-                subTableHtml += '<thead><tr><th>Faculty</th><th>Publications</th><th>Adjusted Score</th></tr></thead>';
+                subTableHtml += '<thead><tr><th>Faculty</th><th>Areas</th><th>Adjusted Score</th></tr></thead>';
                 subTableHtml += '<tbody>';
 
                 if (Object.keys(authors).length > 0) {
                     for (var author in authors) {
-                        subTableHtml += '<tr><td>' + author + '</td><td></td><td>' + authors[author] + '</td></tr>';
+                        var areas = Object.keys(authors[author]).join(", ");
+                        var score = Object.values(authors[author]).reduce((a, b) => a + b, 0);
+                        subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + score.toFixed(2) + '</td></tr>';
                     }
                 } else {
                     subTableHtml += '<tr><td colspan="3">No data available</td></tr>';

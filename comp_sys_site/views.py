@@ -1,11 +1,9 @@
 import json
 from decimal import Decimal
 
-from django.http import HttpResponse
 from django.shortcuts import render
-from . import views_helpers as vh
-from datetime import datetime
 import logging
+import math
 
 template_dir = 'comp_sys_site/'
 ROW_LIMIT = 300
@@ -15,71 +13,94 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def common_entries(*dictionaries):
+def calculate_average_count(n, adjusted_counts):
+    product = 1
+    for i in range(1, n + 1):
+        product *= (adjusted_counts.get(i, 0) + 1)
+
+    average_count = math.pow(product, 1 / n)
+    return average_count
+
+
+def read_dict_from_file(file_path: str) -> dict:
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding JSON file: {str(e)}")
+        return {}
+    except IOError as e:
+        logger.error(f"Error reading file: {str(e)}")
+        return {}
+
+
+def sort_authors(authors_per_school: dict) -> dict:
+    return {
+        school: dict(sorted(school_authors.items(), key=lambda x: x[1], reverse=True))
+        for school, school_authors in authors_per_school.items()
+    }
+
+
+def sort_institutions_by_total_score(institutions_dict):
+    sorted_institutions = sorted(institutions_dict.items(), key=lambda x: x[1]['total_score'], reverse=True)
+    return dict(sorted_institutions)
+
+
+def sum_dict_values(data: dict) -> Decimal:
     """
-    Iterate over multiple dictionaries simultaneously and yield common entries.
+    Sums all the values from a dictionary and returns the result as a Decimal.
 
-    Args:
-        *dictionaries: Variable number of dictionaries.
-
-    Yields:
-        tuple: A tuple containing the common key and the corresponding values
-               from each dictionary.
-
-    Description:
-        This function takes a variable number of dictionaries as arguments and
-        iterates over their common entries. It yields a tuple for each common
-        entry, where the first element is the key itself, and the subsequent
-        elements are the corresponding values from each dictionary.
-
-    Example:
-        dict1 = {'a': 1, 'b': 2, 'c': 3}
-        dict2 = {'a': 4, 'b': 5, 'd': 6}
-        dict3 = {'a': 7, 'c': 8, 'd': 9}
-
-        for entry in common_entries(dict1, dict2, dict3):
-            print(entry)
-
-        Output:
-            ('a', 1, 4, 7)
-
-    Note:
-        - If no dictionaries are provided, the function returns immediately.
-        - The order of the dictionaries passed to the function determines the
-          order of the values in the yielded tuples.
-        - Only the keys present in all the dictionaries are considered common
-          and included in the iteration.
+    :param data: The input dictionary.
+    :return: The sum of all values as a Decimal.
     """
-    if not dictionaries:
-        return
-    for i in set(dictionaries[0]).intersection(*dictionaries[1:]):
-        yield (i,) + tuple(d[i] for d in dictionaries)
+    total = Decimal(0)
+
+    for value in data.values():
+        if isinstance(value, (int, float, Decimal)):
+            total += Decimal(value)
+        else:
+            raise ValueError(f"Unsupported value type: {type(value)}")
+
+    return total
+
+
+def sort_authors_by_total_score(institutions_dict):
+    for institution, scores in institutions_dict.items():
+        authors_dict = scores['authors']
+        sorted_authors = sorted(authors_dict.items(), key=lambda x: sum_dict_values(x[1]), reverse=True)
+        scores['authors'] = dict(sorted_authors)
+    return institutions_dict
+
+
+def convert_decimals_to_float(data):
+    if isinstance(data, dict):
+        return {key: convert_decimals_to_float(value) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [convert_decimals_to_float(item) for item in data]
+    elif isinstance(data, Decimal):
+        return float(data)
+    else:
+        return data
+
+
+def get_required_data():
+    school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
+    sorted_school_ranks = sort_institutions_by_total_score(school_data)
+
+    sort_authors_by_total_score(sorted_school_ranks)
+
+    return sorted_school_ranks
 
 
 def home(request):
     template = f'{template_dir}home.html'
-    school_authors = {'UCSC': {'Emanuele Trucco': Decimal('4.239108887328701570187638301'),
-                               'Annalu Waller': Decimal('6.640949633441893503813008455')
-                               },
-                      'Purdue': {'huirbnv': Decimal('4.239108887328701570187638301'),
-                                 'nreuiovn': Decimal('6.640949633441893503813008455')
-                                 },
-                      'USC': {'Trucco': Decimal('4.239108887328701570187638301'),
-                              'Waller': Decimal('6.640949633441893503813008455')
-                              }
-                      }
 
     # get current ranking data
-    with open('comp_sys_site/static/required_files/rankings.json') as rankings:
-        ranks = json.load(rankings)
-        sorted_ranks = dict(sorted(ranks.items(), key=lambda x: x[1], reverse=True))
-        logger.info(sorted_ranks)
+    sorted_school_ranks = get_required_data()
+    logger.info(sorted_school_ranks)
 
-        # Convert Decimal objects to float
-        for school, data in sorted_ranks.items():
-            authors = school_authors.get(school, {})
-            for author, score in authors.items():
-                authors[author] = float(score)
-            sorted_ranks[school] = {"score": data, "school_authors": authors}
+    # Convert Decimal objects to float
+    convert_decimals_to_float(sorted_school_ranks)
 
-        return render(request, template, {'sorted_ranks': sorted_ranks})
+    return render(request, template, {'sorted_ranks': sorted_school_ranks})
