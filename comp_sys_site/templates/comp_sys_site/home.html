@@ -21,6 +21,10 @@
                             <label class="btn btn-outline-primary">
                                 <input type="radio" name="options" id="deselectAll" autocomplete="off"> Off
                             </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="options" id="toggleCollapse" autocomplete="off">
+                                Collapse/Expand All
+                            </label>
                         </div>
                         <h4>Areas</h4>
                         <ul>
@@ -36,19 +40,23 @@
                                                  aria-label="Vertical radio toggle button group">
 
                                                 <input type="checkbox" class="btn-check" id="ASPLOS" name="areas"
-                                                       value="ASPLOS" autocomplete="off">
+                                                       value="ASPLOS" autocomplete="off"
+                                                       {% if 'ASPLOS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ASPLOS">ASPLOS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ISCA" name="areas"
-                                                       value="ISCA" autocomplete="off">
+                                                       value="ISCA" autocomplete="off"
+                                                       {% if 'ISCA' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ISCA">ISCA</label>
 
                                                 <input type="checkbox" class="btn-check" id="MICRO" name="areas"
-                                                       value="MICRO" autocomplete="off">
+                                                       value="MICRO" autocomplete="off"
+                                                       {% if 'MICRO' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="MICRO">MICRO</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPCA" name="areas"
-                                                       value="HPCA" autocomplete="off">
+                                                       value="HPCA" autocomplete="off"
+                                                       {% if 'HPCA' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="HPCA">HPCA</label>
 
                                             </div>
@@ -66,15 +74,18 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="SIGCOMM" name="areas"
-                                                       value="SIGCOMM" autocomplete="off">
+                                                       value="SIGCOMM" autocomplete="off"
+                                                       {% if 'SIGCOMM' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="SIGCOMM">SIGCOMM</label>
 
                                                 <input type="checkbox" class="btn-check" id="NSDI" name="areas"
-                                                       value="NSDI" autocomplete="off">
+                                                       value="NSDI" autocomplete="off"
+                                                       {% if 'NSDI' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="NSDI">NSDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="CONEXT" name="areas"
-                                                       value="CONEXT" autocomplete="off">
+                                                       value="CONEXT" autocomplete="off"
+                                                       {% if 'CONEXT' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="CONEXT">CONEXT</label>
 
                                             </div>
@@ -92,37 +103,44 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="CCS" name="areas"
-                                                       value="CCS" autocomplete="off">
+                                                       value="CCS" autocomplete="off"
+                                                       {% if 'CCS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="CCS">CCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off">
+                                                       name="areas" value="ACM-Conference" autocomplete="off"
+                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ACM-Conference">ACM
                                                     Conference on Computer and Communications Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security"
-                                                       name="areas" value="USENIX-Security" autocomplete="off">
+                                                       name="areas" value="USENIX-Security" autocomplete="off"
+                                                       {% if 'USENIX-Security' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
                                                     Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
                                                        name="areas" value="USENIX-Security-Symposium"
-                                                       autocomplete="off">
+                                                       autocomplete="off"
+                                                       {% if 'USENIX-Security-Symposium' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
                                                     Security Symposium</label>
 
                                                 <input type="checkbox" class="btn-check" id="NDSS" name="areas"
-                                                       value="NDSS" autocomplete="off">
+                                                       value="NDSS" autocomplete="off"
+                                                       {% if 'NDSS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off">
+                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
+                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
                                                     Symposium on Security and Privacy</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
                                                        name="areas" value="IEEE-Security-and-Privacy"
-                                                       autocomplete="off">
+                                                       autocomplete="off"
+                                                       {% if 'IEEE-Security-and-Privacy' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
                                                     Security and Privacy</label>
 
@@ -141,41 +159,46 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="CCS" name="areas"
-                                                       value="CCS" autocomplete="off">
+                                                       value="CCS" autocomplete="off"
+                                                       {% if 'CCS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="CCS">CCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off">
+                                                       name="areas" value="ACM-Conference" autocomplete="off"
+                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ACM-Conference">ACM
                                                     Conference on Computer and Communications Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security"
-                                                       name="areas" value="USENIX-Security" autocomplete="off">
+                                                       name="areas" value="USENIX-Security" autocomplete="off"
+                                                       {% if 'USENIX-Security' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
                                                     Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
-                                                       name="areas" value="USENIX-Security-Symposium"
-                                                       autocomplete="off">
+                                                       name="areas" value="USENIX-Security-Symposium" autocomplete="off"
+                                                       {% if 'USENIX-Security-Symposium' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
                                                     Security Symposium</label>
 
                                                 <input type="checkbox" class="btn-check" id="NDSS" name="areas"
-                                                       value="NDSS" autocomplete="off">
+                                                       value="NDSS" autocomplete="off"
+                                                       {% if 'NDSS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off">
+                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
+                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
                                                     Symposium on Security and Privacy</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
-                                                       name="areas" value="IEEE-Security-and-Privacy"
-                                                       autocomplete="off">
+                                                       name="areas" value="IEEE-Security-and-Privacy" autocomplete="off"
+                                                       {% if 'IEEE-Security-and-Privacy' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
                                                     Security and Privacy</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -193,14 +216,16 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="RTAS" name="areas"
-                                                       value="RTAS" autocomplete="off">
+                                                       value="RTAS" autocomplete="off"
+                                                       {% if 'RTAS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="RTAS">RTAS</label>
 
                                                 <input type="checkbox" class="btn-check" id="RTSS" name="areas"
-                                                       value="RTSS" autocomplete="off">
+                                                       value="RTSS" autocomplete="off"
+                                                       {% if 'RTSS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="RTSS">RTSS</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -218,18 +243,21 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="Supercomputing"
-                                                       name="areas" value="Supercomputing" autocomplete="off">
+                                                       name="areas" value="Supercomputing" autocomplete="off"
+                                                       {% if 'Supercomputing' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="Supercomputing">Supercomputing</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPDC" name="areas"
-                                                       value="HPDC" autocomplete="off">
+                                                       value="HPDC" autocomplete="off"
+                                                       {% if 'HPDC' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="HPDC">HPDC</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICS" name="areas"
-                                                       value="ICS" autocomplete="off">
+                                                       value="ICS" autocomplete="off"
+                                                       {% if 'ICS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ICS">ICS</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -246,22 +274,26 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="MobiSys" name="areas"
-                                                       value="MobiSys" autocomplete="off">
+                                                       value="MobiSys" autocomplete="off"
+                                                       {% if 'MobiSys' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="MobiSys">MobiSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="MobiCom" name="areas"
-                                                       value="MobiCom" autocomplete="off">
+                                                       value="MobiCom" autocomplete="off"
+                                                       {% if 'MobiCom' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="MobiCom">MobiCom</label>
 
                                                 <input type="checkbox" class="btn-check" id="SenSys" name="areas"
-                                                       value="SenSys" autocomplete="off">
+                                                       value="SenSys" autocomplete="off"
+                                                       {% if 'SenSys' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="SenSys">SenSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="IPSN" name="areas"
-                                                       value="IPSN" autocomplete="off">
+                                                       value="IPSN" autocomplete="off"
+                                                       {% if 'IPSN' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IPSN">IPSN</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -280,15 +312,17 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="IMC" name="areas"
-                                                       value="IMC" autocomplete="off">
+                                                       value="IMC" autocomplete="off"
+                                                       {% if 'IMC' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IMC">IMC</label>
 
                                                 <input type="checkbox" class="btn-check" id="Sigmetrics" name="areas"
-                                                       value="Sigmetrics" autocomplete="off">
+                                                       value="Sigmetrics" autocomplete="off"
+                                                       {% if 'Sigmetrics' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary"
                                                        for="Sigmetrics">Sigmetrics</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -305,37 +339,44 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="SOSP" name="areas"
-                                                       value="SOSP" autocomplete="off">
+                                                       value="SOSP" autocomplete="off"
+                                                       {% if 'SOSP' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="SOSP">SOSP</label>
 
                                                 <input type="checkbox" class="btn-check" id="OSDI" name="areas"
-                                                       value="OSDI" autocomplete="off">
+                                                       value="OSDI" autocomplete="off"
+                                                       {% if 'OSDI' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="OSDI">OSDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="EuroSys" name="areas"
-                                                       value="EuroSys" autocomplete="off">
+                                                       value="EuroSys" autocomplete="off"
+                                                       {% if 'EuroSys' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="EuroSys">EuroSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC" name="areas"
-                                                       value="USENIX-ATC" autocomplete="off">
+                                                       value="USENIX-ATC" autocomplete="off"
+                                                       {% if 'USENIX-ATC' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-ATC">USENIX Annual
                                                     Technical Conference</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC-Short"
-                                                       name="areas" value="USENIX-ATC-Short" autocomplete="off">
+                                                       name="areas" value="USENIX-ATC-Short" autocomplete="off"
+                                                       {% if 'USENIX-ATC-Short' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-ATC-Short">USENIX
                                                     ATC</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-FAST" name="areas"
-                                                       value="USENIX-FAST" autocomplete="off">
+                                                       value="USENIX-FAST" autocomplete="off"
+                                                       {% if 'USENIX-FAST' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-FAST">USENIX
                                                     FAST</label>
 
                                                 <input type="checkbox" class="btn-check" id="FAST" name="areas"
-                                                       value="FAST" autocomplete="off">
+                                                       value="FAST" autocomplete="off"
+                                                       {% if 'FAST' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="FAST">FAST</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -353,18 +394,21 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="PLDI" name="areas"
-                                                       value="PLDI" autocomplete="off">
+                                                       value="PLDI" autocomplete="off"
+                                                       {% if 'PLDI' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="PLDI">PLDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="POPL" name="areas"
-                                                       value="POPL" autocomplete="off">
+                                                       value="POPL" autocomplete="off"
+                                                       {% if 'POPL' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="POPL">POPL</label>
 
                                                 <input type="checkbox" class="btn-check" id="OOPSLA" name="areas"
-                                                       value="OOPSLA" autocomplete="off">
+                                                       value="OOPSLA" autocomplete="off"
+                                                       {% if 'OOPSLA' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="OOPSLA">OOPSLA</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -382,28 +426,33 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="ASE" name="areas"
-                                                       value="ASE" autocomplete="off">
+                                                       value="ASE" autocomplete="off"
+                                                       {% if 'ASE' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ASE">ASE</label>
 
                                                 <input type="checkbox" class="btn-check" id="FSE" name="areas"
-                                                       value="FSE" autocomplete="off">
+                                                       value="FSE" autocomplete="off"
+                                                       {% if 'FSE' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="FSE">FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="SIGSOFT-FSE" name="areas"
-                                                       value="SIGSOFT-FSE" autocomplete="off">
+                                                       value="SIGSOFT-FSE" autocomplete="off"
+                                                       {% if 'SIGSOFT-FSE' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="SIGSOFT-FSE">SIGSOFT
                                                     FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="ESEC-SIGSOFT-FSE"
-                                                       name="areas" value="ESEC-SIGSOFT-FSE" autocomplete="off">
+                                                       name="areas" value="ESEC-SIGSOFT-FSE" autocomplete="off"
+                                                       {% if 'ESEC-SIGSOFT-FSE' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ESEC-SIGSOFT-FSE">ESEC/SIGSOFT
                                                     FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICSE" name="areas"
-                                                       value="ICSE" autocomplete="off">
+                                                       value="ICSE" autocomplete="off"
+                                                       {% if 'ICSE' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ICSE">ICSE</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -422,22 +471,26 @@
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
                                                 <input type="checkbox" class="btn-check" id="DISC" name="areas"
-                                                       value="DISC" autocomplete="off">
+                                                       value="DISC" autocomplete="off"
+                                                       {% if 'DISC' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="DISC">DISC</label>
 
                                                 <input type="checkbox" class="btn-check" id="DSN" name="areas"
-                                                       value="DSN" autocomplete="off">
+                                                       value="DSN" autocomplete="off"
+                                                       {% if 'DSN' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="DSN">DSN</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICDCS" name="areas"
-                                                       value="ICDCS" autocomplete="off">
+                                                       value="ICDCS" autocomplete="off"
+                                                       {% if 'ICDCS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ICDCS">ICDCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="PODC" name="areas"
-                                                       value="PODC" autocomplete="off">
+                                                       value="PODC" autocomplete="off"
+                                                       {% if 'PODC' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="PODC">PODC</label>
-
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -524,6 +577,16 @@
 
             $('input[type="checkbox"]').change(function () {
                 $(this).closest('form').submit();
+            });
+            $('#toggleCollapse').click(function () {
+                var collapsedElements = $('.collapse.multi-collapse:not(.show)');
+                var expandedElements = $('.collapse.multi-collapse.show');
+
+                if (collapsedElements.length > 0) {
+                    collapsedElements.collapse('show');
+                } else if (expandedElements.length > 0) {
+                    expandedElements.collapse('hide');
+                }
             });
         });
     </script>

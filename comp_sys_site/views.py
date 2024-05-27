@@ -188,7 +188,7 @@ def home(request):
         # Convert Decimal objects to float
         convert_decimals_to_float(sorted_school_ranks)
 
-        return render(request, template, {'sorted_ranks': sorted_school_ranks})
+        return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': areas})
 
     # get current ranking data
     sorted_school_ranks = get_required_data()
@@ -196,4 +196,12 @@ def home(request):
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
 
-    return render(request, template, {'sorted_ranks': sorted_school_ranks})
+    # Define a list of all areas
+    all_areas = ['ASPLOS', 'ISCA', 'MICRO', 'HPCA', 'SIGCOMM', 'NSDI', 'CONEXT', 'CCS', 'ACM-Conference',
+                 'USENIX-Security', 'USENIX-Security-Symposium', 'NDSS', 'IEEE-Symposium', 'IEEE-Security-and-Privacy',
+                 'RTAS', 'RTSS', 'Supercomputing', 'HPDC', 'ICS', 'MobiSys', 'MobiCom', 'SenSys', 'IPSN', 'IMC',
+                 'Sigmetrics', 'SOSP', 'OSDI', 'EuroSys', 'USENIX-ATC', 'USENIX-ATC-Short', 'USENIX-FAST', 'FAST',
+                 'PLDI', 'POPL', 'OOPSLA', 'ASE', 'FSE', 'SIGSOFT-FSE', 'ESEC-SIGSOFT-FSE', 'ICSE', 'DISC', 'DSN',
+                 'ICDCS', 'PODC']
+
+    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': all_areas})
