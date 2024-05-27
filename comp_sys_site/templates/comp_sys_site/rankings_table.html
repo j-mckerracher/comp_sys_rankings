@@ -1,0 +1,20 @@
+<table id="rankings-table" class="table table-responsive">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Institution</th>
+      <th scope="col">Count</th>
+      <th scope="col">Faculty</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for institution, data in sorted_ranks.items %}
+      <tr data-institution="{{ institution }}">
+        <td>{{ forloop.counter }}</td>
+        <td><span class="toggle-icon">+</span> {{ institution }}</td>
+        <td>{{ data.average_count }}</td>
+        <td>{{ data.author_count }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

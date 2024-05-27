@@ -3,6 +3,8 @@ from decimal import Decimal
 import re
 
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 import logging
 import math
 
@@ -59,11 +61,11 @@ def sum_dict_values(data: dict) -> Decimal:
 
 def sort_authors_by_total_score(institutions_dict):
     for institution, scores in institutions_dict.items():
-        authors_dict = scores['authors']
-        sorted_authors = sorted(authors_dict.items(),
-                                key=lambda x: sum_dict_values({k: v for k, v in x[1].items() if k != 'paper_count'}),
-                                reverse=True)
-        scores['authors'] = dict(sorted_authors)
+        if scores is not None:
+            authors_dict = scores['authors']
+            sorted_authors = sorted(authors_dict.items(), key=lambda x: x[1]['paper_count'], reverse=True)
+            scores['authors'] = dict(sorted_authors)
+
     return institutions_dict
 
 
@@ -146,17 +148,15 @@ def format_university_data(school_data: dict):
     formatted_school_data = {}
 
     for school, data in school_data.items():
-        formatted_name = format_university_names(school)
+        if data is not None:
+            formatted_name = format_university_names(school)
 
-        # Calculate the average count using the formula
-        n = len(data['area_scores'])
-        adjusted_counts = {i: count for i, count in enumerate(data['area_scores'].values(), start=1)}
-        average_count = calculate_average_count(n, adjusted_counts)
+            n = len(data['area_scores'])
+            adjusted_counts = {i: count for i, count in enumerate(data['area_scores'].values(), start=1)}
+            average_count = calculate_average_count(n, adjusted_counts)
 
-        # Add the average count to the formatted data
-        data['average_count'] = average_count
-
-        formatted_school_data[formatted_name] = data
+            data['average_count'] = average_count
+            formatted_school_data[formatted_name] = data
 
     formatted_school_data = format_author_names(formatted_school_data)
 
@@ -164,12 +164,42 @@ def format_university_data(school_data: dict):
 
 
 def get_required_data(areas=None):
-    if areas:
-        pass
-
     school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
-    formatted_school_data = format_university_data(school_data)
+    filtered_school_data = {}
 
+    for school, data in school_data.items():
+        if data is not None and 'area_scores' in data:
+            if areas is None:
+                filtered_area_scores = data['area_scores']
+                filtered_area_paper_counts = data['area_paper_counts']
+            else:
+                filtered_area_scores = {area: score for area, score in data['area_scores'].items() if area in areas}
+                filtered_area_paper_counts = {area: count for area, count in data['area_paper_counts'].items() if area in areas}
+
+            filtered_authors = {}
+
+            for author, author_data in data['authors'].items():
+                if areas is None:
+                    filtered_author_area_counts = author_data['area_paper_counts']
+                    filtered_author_scores = {area: score for area, score in author_data.items() if area != 'paper_count' and area != 'area_paper_counts'}
+                else:
+                    filtered_author_area_counts = {area: count for area, count in author_data['area_paper_counts'].items() if area in areas}
+                    filtered_author_scores = {area: score for area, score in author_data.items() if area in areas and area != 'paper_count' and area != 'area_paper_counts'}
+
+                filtered_authors[author] = {
+                    'paper_count': sum(filtered_author_area_counts.values()),
+                    'area_paper_counts': filtered_author_area_counts,
+                    **filtered_author_scores
+                }
+
+            filtered_school_data[school] = {
+                'total_score': sum(filtered_area_scores.values()),
+                'area_scores': filtered_area_scores,
+                'area_paper_counts': filtered_area_paper_counts,
+                'authors': filtered_authors
+            }
+
+    formatted_school_data = format_university_data(filtered_school_data)
     sorted_school_ranks = sort_institutions_by_average_count(formatted_school_data)
     sort_authors_by_total_score(sorted_school_ranks)
 
@@ -178,9 +208,8 @@ def get_required_data(areas=None):
 
 def home(request):
     template = f'{template_dir}home.html'
-    if request.method == 'POST':
+    if request.method == 'POST' and request.is_ajax():
         areas = request.POST.getlist('areas')
-        print(areas)
 
         # get current ranking data
         sorted_school_ranks = get_required_data(areas)
@@ -188,7 +217,11 @@ def home(request):
         # Convert Decimal objects to float
         convert_decimals_to_float(sorted_school_ranks)
 
-        return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': areas})
+        # Render the updated rankings table HTML
+        table_html = render_to_string('comp_sys_site/rankings_table.html', {'sorted_ranks': sorted_school_ranks})
+
+        # Return the updated rankings table HTML and institution data as JSON
+        return JsonResponse({'tableHtml': table_html, 'institutionData': sorted_school_ranks})
 
     # get current ranking data
     sorted_school_ranks = get_required_data()
