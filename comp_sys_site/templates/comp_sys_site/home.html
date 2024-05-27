@@ -6,56 +6,525 @@
 {% endblock extra_css %}
 
 {% block content %}
-<h1>Rankings</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <form method="POST" action="{% url 'home' %}">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Area Filters</legend>
+                        <h4>All Areas</h4>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="options" id="selectAll" autocomplete="off" checked> On
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="options" id="deselectAll" autocomplete="off"> Off
+                            </label>
+                        </div>
+                        <h4>Areas</h4>
+                        <ul>
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Computer-architecture"
+                                   role="button" aria-expanded="false" aria-controls="Computer-architecture">Computer
+                                    architecture</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Computer-architecture">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
 
-<table id="rankings-table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Institution</th>
-            <th>Total Score</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for institution, data in sorted_ranks.items %}
-        <tr data-institution="{{ institution }}">
-            <td>{{ forloop.counter }}</td>
-            <td>{{ institution }}</td>
-            <td>{{ data.total_score }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                                                <input type="checkbox" class="btn-check" id="ASPLOS" name="areas"
+                                                       value="ASPLOS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ASPLOS">ASPLOS</label>
 
-<script>
-    $(document).ready(function() {
-        var institutionData = {{ sorted_ranks|safe }};
+                                                <input type="checkbox" class="btn-check" id="ISCA" name="areas"
+                                                       value="ISCA" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ISCA">ISCA</label>
 
-        $('#rankings-table tbody tr').click(function() {
-            var institution = $(this).data('institution');
-            var authors = institutionData[institution].authors;
+                                                <input type="checkbox" class="btn-check" id="MICRO" name="areas"
+                                                       value="MICRO" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="MICRO">MICRO</label>
 
-            if ($(this).next().hasClass('sub-table-row')) {
-                $(this).next().remove();
-            } else {
-                var subTableHtml = '<tr class="sub-table-row"><td colspan="3"><table class="sub-table">';
-                subTableHtml += '<thead><tr><th>Faculty</th><th>Areas</th><th>Adjusted Score</th></tr></thead>';
-                subTableHtml += '<tbody>';
+                                                <input type="checkbox" class="btn-check" id="HPCA" name="areas"
+                                                       value="HPCA" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="HPCA">HPCA</label>
 
-                if (Object.keys(authors).length > 0) {
-                    for (var author in authors) {
-                        var areas = Object.keys(authors[author]).join(", ");
-                        var score = Object.values(authors[author]).reduce((a, b) => a + b, 0);
-                        subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + score.toFixed(2) + '</td></tr>';
-                    }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Computer-networks"
+                                   role="button" aria-expanded="false" aria-controls="Computer-networks">Computer
+                                    networks</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Computer-networks">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="SIGCOMM" name="areas"
+                                                       value="SIGCOMM" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SIGCOMM">SIGCOMM</label>
+
+                                                <input type="checkbox" class="btn-check" id="NSDI" name="areas"
+                                                       value="NSDI" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="NSDI">NSDI</label>
+
+                                                <input type="checkbox" class="btn-check" id="CONEXT" name="areas"
+                                                       value="CONEXT" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="CONEXT">CONEXT</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+                            <li><a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Computer-security"
+                                   role="button" aria-expanded="false" aria-controls="Computer-security">Computer
+                                security</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Computer-security">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="CCS" name="areas"
+                                                       value="CCS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="CCS">CCS</label>
+
+                                                <input type="checkbox" class="btn-check" id="ACM-Conference"
+                                                       name="areas" value="ACM-Conference" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ACM-Conference">ACM
+                                                    Conference on Computer and Communications Security</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-Security"
+                                                       name="areas" value="USENIX-Security" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
+                                                    Security</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
+                                                       name="areas" value="USENIX-Security-Symposium"
+                                                       autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
+                                                    Security Symposium</label>
+
+                                                <input type="checkbox" class="btn-check" id="NDSS" name="areas"
+                                                       value="NDSS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
+
+                                                <input type="checkbox" class="btn-check" id="IEEE-Symposium"
+                                                       name="areas" value="IEEE-Symposium" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
+                                                    Symposium on Security and Privacy</label>
+
+                                                <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
+                                                       name="areas" value="IEEE-Security-and-Privacy"
+                                                       autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
+                                                    Security and Privacy</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Databases"
+                                   role="button" aria-expanded="false" aria-controls="Databases">Databases</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Databases">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="CCS" name="areas"
+                                                       value="CCS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="CCS">CCS</label>
+
+                                                <input type="checkbox" class="btn-check" id="ACM-Conference"
+                                                       name="areas" value="ACM-Conference" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ACM-Conference">ACM
+                                                    Conference on Computer and Communications Security</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-Security"
+                                                       name="areas" value="USENIX-Security" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
+                                                    Security</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
+                                                       name="areas" value="USENIX-Security-Symposium"
+                                                       autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
+                                                    Security Symposium</label>
+
+                                                <input type="checkbox" class="btn-check" id="NDSS" name="areas"
+                                                       value="NDSS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
+
+                                                <input type="checkbox" class="btn-check" id="IEEE-Symposium"
+                                                       name="areas" value="IEEE-Symposium" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
+                                                    Symposium on Security and Privacy</label>
+
+                                                <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
+                                                       name="areas" value="IEEE-Security-and-Privacy"
+                                                       autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
+                                                    Security and Privacy</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Embedded-and-Real-time"
+                                   role="button" aria-expanded="false" aria-controls="Embedded-and-Real-time">Embedded
+                                    and
+                                    Real-time</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Embedded-and-Real-time">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="RTAS" name="areas"
+                                                       value="RTAS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="RTAS">RTAS</label>
+
+                                                <input type="checkbox" class="btn-check" id="RTSS" name="areas"
+                                                       value="RTSS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="RTSS">RTSS</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#High-performance-computing"
+                                   role="button" aria-expanded="false" aria-controls="High-performance-computing">High-performance
+                                    computing</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="High-performance-computing">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="Supercomputing"
+                                                       name="areas" value="Supercomputing" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="Supercomputing">Supercomputing</label>
+
+                                                <input type="checkbox" class="btn-check" id="HPDC" name="areas"
+                                                       value="HPDC" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="HPDC">HPDC</label>
+
+                                                <input type="checkbox" class="btn-check" id="ICS" name="areas"
+                                                       value="ICS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ICS">ICS</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Mobile-computing"
+                                   role="button" aria-expanded="false" aria-controls="Mobile-computing">Mobile
+                                    computing</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Mobile-computing">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="MobiSys" name="areas"
+                                                       value="MobiSys" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="MobiSys">MobiSys</label>
+
+                                                <input type="checkbox" class="btn-check" id="MobiCom" name="areas"
+                                                       value="MobiCom" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="MobiCom">MobiCom</label>
+
+                                                <input type="checkbox" class="btn-check" id="SenSys" name="areas"
+                                                       value="SenSys" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SenSys">SenSys</label>
+
+                                                <input type="checkbox" class="btn-check" id="IPSN" name="areas"
+                                                       value="IPSN" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IPSN">IPSN</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Measurement-and-Performance-analysis"
+                                   role="button" aria-expanded="false"
+                                   aria-controls="Measurement-and-Performance-analysis">Measurement
+                                    and Performance analysis</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Measurement-and-Performance-analysis">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="IMC" name="areas"
+                                                       value="IMC" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="IMC">IMC</label>
+
+                                                <input type="checkbox" class="btn-check" id="Sigmetrics" name="areas"
+                                                       value="Sigmetrics" autocomplete="off">
+                                                <label class="btn btn-outline-primary"
+                                                       for="Sigmetrics">Sigmetrics</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Operating-systems"
+                                   role="button" aria-expanded="false" aria-controls="Operating-systems">Operating
+                                    systems</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Operating-systems">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="SOSP" name="areas"
+                                                       value="SOSP" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SOSP">SOSP</label>
+
+                                                <input type="checkbox" class="btn-check" id="OSDI" name="areas"
+                                                       value="OSDI" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="OSDI">OSDI</label>
+
+                                                <input type="checkbox" class="btn-check" id="EuroSys" name="areas"
+                                                       value="EuroSys" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="EuroSys">EuroSys</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-ATC" name="areas"
+                                                       value="USENIX-ATC" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-ATC">USENIX Annual
+                                                    Technical Conference</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-ATC-Short"
+                                                       name="areas" value="USENIX-ATC-Short" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-ATC-Short">USENIX
+                                                    ATC</label>
+
+                                                <input type="checkbox" class="btn-check" id="USENIX-FAST" name="areas"
+                                                       value="USENIX-FAST" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="USENIX-FAST">USENIX
+                                                    FAST</label>
+
+                                                <input type="checkbox" class="btn-check" id="FAST" name="areas"
+                                                       value="FAST" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="FAST">FAST</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Programming-languages"
+                                   role="button" aria-expanded="false" aria-controls="Programming-languages">Programming
+                                    languages</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Programming-languages">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="PLDI" name="areas"
+                                                       value="PLDI" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="PLDI">PLDI</label>
+
+                                                <input type="checkbox" class="btn-check" id="POPL" name="areas"
+                                                       value="POPL" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="POPL">POPL</label>
+
+                                                <input type="checkbox" class="btn-check" id="OOPSLA" name="areas"
+                                                       value="OOPSLA" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="OOPSLA">OOPSLA</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Software-engineering"
+                                   role="button" aria-expanded="false" aria-controls="Software-engineering">Software
+                                    engineering</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Software-engineering">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="ASE" name="areas"
+                                                       value="ASE" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ASE">ASE</label>
+
+                                                <input type="checkbox" class="btn-check" id="FSE" name="areas"
+                                                       value="FSE" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="FSE">FSE</label>
+
+                                                <input type="checkbox" class="btn-check" id="SIGSOFT-FSE" name="areas"
+                                                       value="SIGSOFT-FSE" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="SIGSOFT-FSE">SIGSOFT
+                                                    FSE</label>
+
+                                                <input type="checkbox" class="btn-check" id="ESEC-SIGSOFT-FSE"
+                                                       name="areas" value="ESEC-SIGSOFT-FSE" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ESEC-SIGSOFT-FSE">ESEC/SIGSOFT
+                                                    FSE</label>
+
+                                                <input type="checkbox" class="btn-check" id="ICSE" name="areas"
+                                                       value="ICSE" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ICSE">ICSE</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                   href="#Distributed-systems-and-Dependability"
+                                   role="button" aria-expanded="false"
+                                   aria-controls="Distributed-systems-and-Dependability">Distributed
+                                    systems and Dependability</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="Distributed-systems-and-Dependability">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="DISC" name="areas"
+                                                       value="DISC" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="DISC">DISC</label>
+
+                                                <input type="checkbox" class="btn-check" id="DSN" name="areas"
+                                                       value="DSN" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="DSN">DSN</label>
+
+                                                <input type="checkbox" class="btn-check" id="ICDCS" name="areas"
+                                                       value="ICDCS" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="ICDCS">ICDCS</label>
+
+                                                <input type="checkbox" class="btn-check" id="PODC" name="areas"
+                                                       value="PODC" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="PODC">PODC</label>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                        </ul>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <table id="rankings-table" class="table table-responsive">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Institution</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Faculty</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for institution, data in sorted_ranks.items %}
+                        <tr data-institution="{{ institution }}">
+                            <td>{{ forloop.counter }}</td>
+                            <td><span class="toggle-icon">+</span> {{ institution }}</td>
+                            <td>{{ data.average_count }}</td>
+                            <td>{{ data.author_count }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            var institutionData = {{ sorted_ranks|safe }};
+
+            $('#rankings-table tbody tr .toggle-icon').click(function () {
+                var row = $(this).closest('tr');
+                var institution = row.data('institution');
+                var authors = institutionData[institution].authors;
+
+                if (row.next().hasClass('sub-table-row')) {
+                    row.next().remove();
+                    $(this).text('+');
                 } else {
-                    subTableHtml += '<tr><td colspan="3">No data available</td></tr>';
-                }
+                    var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
+                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
+                    subTableHtml += '<tbody>';
 
-                subTableHtml += '</tbody></table></td></tr>';
-                $(this).after(subTableHtml);
-            }
+                    if (Object.keys(authors).length > 0) {
+                        for (var author in authors) {
+                            var authorData = {};
+                            var paperCount = authors[author]['paper_count'];
+                            for (var key in authors[author]) {
+                                if (key !== 'paper_count') {
+                                    authorData[key] = authors[author][key];
+                                }
+                            }
+                            var areas = Object.keys(authorData).join(", ");
+                            var score = Object.values(authorData).reduce((a, b) => a + b, 0);
+                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
+                        }
+                    } else {
+                        subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
+                    }
+
+                    subTableHtml += '</tbody></table></td></tr>';
+                    row.after(subTableHtml);
+                    $(this).text('-');
+                }
+            });
+
+            $('#selectAll').click(function () {
+                $('input[type="checkbox"]').prop('checked', true);
+            });
+
+            $('#deselectAll').click(function () {
+                $('input[type="checkbox"]').prop('checked', false);
+            });
+
+            $('input[type="checkbox"]').change(function () {
+                $(this).closest('form').submit();
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}

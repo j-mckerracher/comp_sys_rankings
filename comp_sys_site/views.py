@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+import re
 
 from django.shortcuts import render
 import logging
@@ -11,15 +12,6 @@ ROW_LIMIT = 300
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def calculate_average_count(n, adjusted_counts):
-    product = 1
-    for i in range(1, n + 1):
-        product *= (adjusted_counts.get(i, 0) + 1)
-
-    average_count = math.pow(product, 1 / n)
-    return average_count
 
 
 def read_dict_from_file(file_path: str) -> dict:
@@ -42,8 +34,8 @@ def sort_authors(authors_per_school: dict) -> dict:
     }
 
 
-def sort_institutions_by_total_score(institutions_dict):
-    sorted_institutions = sorted(institutions_dict.items(), key=lambda x: x[1]['total_score'], reverse=True)
+def sort_institutions_by_average_count(institutions_dict):
+    sorted_institutions = sorted(institutions_dict.items(), key=lambda x: x[1]['average_count'], reverse=True)
     return dict(sorted_institutions)
 
 
@@ -68,7 +60,9 @@ def sum_dict_values(data: dict) -> Decimal:
 def sort_authors_by_total_score(institutions_dict):
     for institution, scores in institutions_dict.items():
         authors_dict = scores['authors']
-        sorted_authors = sorted(authors_dict.items(), key=lambda x: sum_dict_values(x[1]), reverse=True)
+        sorted_authors = sorted(authors_dict.items(),
+                                key=lambda x: sum_dict_values({k: v for k, v in x[1].items() if k != 'paper_count'}),
+                                reverse=True)
         scores['authors'] = dict(sorted_authors)
     return institutions_dict
 
@@ -79,15 +73,104 @@ def convert_decimals_to_float(data):
     elif isinstance(data, list):
         return [convert_decimals_to_float(item) for item in data]
     elif isinstance(data, Decimal):
-        return float(data)
+        # Convert Decimal to float and round to two decimal places
+        return round(float(data), 2)
     else:
         return data
 
 
-def get_required_data():
-    school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
-    sorted_school_ranks = sort_institutions_by_total_score(school_data)
+def capitalize_word(word):
+    # Words that should not be capitalized
+    lowercase_exceptions = {"at", "of", "in"}
+    # Words that should remain fully uppercase
+    uppercase_exceptions = {"suny", "a&m", "cuny"}
+    if word in lowercase_exceptions:
+        return word
+    if word in uppercase_exceptions:
+        return word.upper()
 
+    return word.capitalize()
+
+
+def format_university_names(name):
+    words = name.lower().split()
+    formatted_words = []
+
+    for word in words:
+        if '-' in word:
+            parts = word.split('-')
+            formatted_parts = [capitalize_word(part) for part in parts]
+            formatted_words.append(' '.join(formatted_parts))
+        elif "&" in word:
+            formatted = capitalize_word(word)
+            formatted_words.append(formatted)
+        else:
+            formatted_words.append(capitalize_word(word))
+
+    result = ' '.join(formatted_words)
+    if "Purdue University" in result:
+        result = result[0:17]
+
+    return result
+
+
+def format_author_names(data):
+    new_data = {}
+    for university, university_data in data.items():
+        new_data[university] = {}
+        for key, value in university_data.items():
+            if key == 'authors':
+                new_data[university][key] = {}
+                for author, author_data in value.items():
+                    formatted_author = re.sub(r'\s*\d+\s*', '', author)
+                    new_data[university][key][formatted_author] = author_data
+            else:
+                new_data[university][key] = value
+
+    return new_data
+
+
+def calculate_average_count(n, adjusted_counts):
+    if n == 0:
+        return 0
+
+    product = 1
+    for i in range(1, n + 1):
+        product *= (adjusted_counts.get(i, 0) + 1)
+
+    average_count = math.pow(product, 1 / n)
+    return average_count
+
+
+def format_university_data(school_data: dict):
+    formatted_school_data = {}
+
+    for school, data in school_data.items():
+        formatted_name = format_university_names(school)
+
+        # Calculate the average count using the formula
+        n = len(data['area_scores'])
+        adjusted_counts = {i: count for i, count in enumerate(data['area_scores'].values(), start=1)}
+        average_count = calculate_average_count(n, adjusted_counts)
+
+        # Add the average count to the formatted data
+        data['average_count'] = average_count
+
+        formatted_school_data[formatted_name] = data
+
+    formatted_school_data = format_author_names(formatted_school_data)
+
+    return formatted_school_data
+
+
+def get_required_data(areas=None):
+    if areas:
+        pass
+
+    school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
+    formatted_school_data = format_university_data(school_data)
+
+    sorted_school_ranks = sort_institutions_by_average_count(formatted_school_data)
     sort_authors_by_total_score(sorted_school_ranks)
 
     return sorted_school_ranks
@@ -95,10 +178,20 @@ def get_required_data():
 
 def home(request):
     template = f'{template_dir}home.html'
+    if request.method == 'POST':
+        areas = request.POST.getlist('areas')
+        print(areas)
+
+        # get current ranking data
+        sorted_school_ranks = get_required_data(areas)
+
+        # Convert Decimal objects to float
+        convert_decimals_to_float(sorted_school_ranks)
+
+        return render(request, template, {'sorted_ranks': sorted_school_ranks})
 
     # get current ranking data
     sorted_school_ranks = get_required_data()
-    logger.info(sorted_school_ranks)
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
