@@ -107,9 +107,14 @@
                                                        {% if 'CCS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="CCS">CCS</label>
 
+                                            <input type="checkbox" class="btn-check" id="ACM-CCS" name="areas"
+                                                       value="ACM-CCS" autocomplete="off"
+                                                       {% if 'ACM-CCS' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ACM-CCS">ACM CCS</label>
+
                                                 <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off"
-                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
+                                                       name="areas" value="ACM-Conference-on-Computer-and-Communications-Security" autocomplete="off"
+                                                       {% if 'ACM-Conference-on-Computer-and-Communications-Security' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ACM-Conference">ACM
                                                     Conference on Computer and Communications Security</label>
 
@@ -132,8 +137,8 @@
                                                 <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
-                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
+                                                       name="areas" value="IEEE-Symposium-on-Security-and-Privacy" autocomplete="off"
+                                                       {% if 'IEEE-Symposium-on-Security-and-Privacy' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
                                                     Symposium on Security and Privacy</label>
 
@@ -158,45 +163,55 @@
                                         <div class="card card-body">
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
-                                                <input type="checkbox" class="btn-check" id="CCS" name="areas"
-                                                       value="CCS" autocomplete="off"
-                                                       {% if 'CCS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="CCS">CCS</label>
+                                                <input type="checkbox" class="btn-check" id="SIGMOD" name="areas"
+                                                       value="SIGMOD" autocomplete="off"
+                                                       {% if 'SIGMOD' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="SIGMOD">SIGMOD</label>
 
-                                                <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off"
-                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ACM-Conference">ACM
-                                                    Conference on Computer and Communications Security</label>
+                                                <input type="checkbox" class="btn-check" id="SIGMOD-Conference"
+                                                       name="areas" value="SIGMOD-Conference" autocomplete="off"
+                                                       {% if 'SIGMOD-Conference' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="SIGMOD-Conference">SIGMOD Conference</label>
 
-                                                <input type="checkbox" class="btn-check" id="USENIX-Security"
-                                                       name="areas" value="USENIX-Security" autocomplete="off"
-                                                       {% if 'USENIX-Security' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
+                                                <input type="checkbox" class="btn-check" id="VLDB"
+                                                       name="areas" value="VLDB" autocomplete="off"
+                                                       {% if 'VLDB' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="VLDB">VLDB
                                                     Security</label>
 
-                                                <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
-                                                       name="areas" value="USENIX-Security-Symposium" autocomplete="off"
-                                                       {% if 'USENIX-Security-Symposium' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
-                                                    Security Symposium</label>
+                                                <input type="checkbox" class="btn-check" id="ICDE"
+                                                       name="areas" value="ICDE" autocomplete="off"
+                                                       {% if 'ICDE' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ICDE">ICDE</label>
 
-                                                <input type="checkbox" class="btn-check" id="NDSS" name="areas"
-                                                       value="NDSS" autocomplete="off"
-                                                       {% if 'NDSS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
+                                                <input type="checkbox" class="btn-check" id="PODS" name="areas"
+                                                       value="PODS" autocomplete="off"
+                                                       {% if 'PODS' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="PODS">PODS</label>
+                                            </div>
 
-                                                <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
-                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
-                                                    Symposium on Security and Privacy</label>
+                                        </div>
+                                    </div>
 
-                                                <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
-                                                       name="areas" value="IEEE-Security-and-Privacy" autocomplete="off"
-                                                       {% if 'IEEE-Security-and-Privacy' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
-                                                    Security and Privacy</label>
+                                </div>
+                            </li>
+                        <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#System-Design"
+                                   role="button" aria-expanded="false" aria-controls="Databases">System Design</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="System-Design">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="DAC" name="areas"
+                                                       value="DAC" autocomplete="off"
+                                                       {% if 'DAC' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="DAC">DAC</label>
+
+                                                <input type="checkbox" class="btn-check" id="ICCAD"
+                                                       name="areas" value="ICCAD" autocomplete="off"
+                                                       {% if 'ICCAD' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ICCAD">ICCAD</label>
                                             </div>
 
                                         </div>
@@ -354,8 +369,8 @@
                                                 <label class="btn btn-outline-primary" for="EuroSys">EuroSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC" name="areas"
-                                                       value="USENIX-ATC" autocomplete="off"
-                                                       {% if 'USENIX-ATC' in selected_areas %}checked{% endif %}>
+                                                       value="USENIX-Annual-Technical-Conference" autocomplete="off"
+                                                       {% if 'USENIX-Annual-Technical-Conference' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-ATC">USENIX Annual
                                                     Technical Conference</label>
 
@@ -544,17 +559,19 @@
                     subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
                     subTableHtml += '<tbody>';
 
-                    if (Object.keys(authors).length > 0) {
+                    if (authors && Object.keys(authors).length > 0) {
                         for (var author in authors) {
-                            var authorData = {};
-                            var paperCount = authors[author]['paper_count'];
-                            for (var key in authors[author]) {
-                                if (key !== 'paper_count') {
-                                    authorData[key] = authors[author][key];
+                            var authorData = authors[author];
+                            var paperCount = authorData['paper_count'] || 0;
+                            var areas = Object.keys(authorData['area_paper_counts'] || {}).join(", ");
+                            var score = 0;
+
+                            for (var key in authorData) {
+                                if (key !== 'paper_count' && key !== 'area_paper_counts') {
+                                    score += authorData[key];
                                 }
                             }
-                            var areas = Object.keys(authorData).join(", ");
-                            var score = Object.values(authorData).reduce((a, b) => a + b, 0);
+
                             subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
                         }
                     } else {

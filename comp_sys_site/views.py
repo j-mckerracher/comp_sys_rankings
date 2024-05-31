@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 import re
-
+from comp_sys_site.helpers.area_conference_mapping import categorize_venue
 from django.shortcuts import render
 import logging
 import math
@@ -60,10 +60,18 @@ def sum_dict_values(data: dict) -> Decimal:
 def sort_authors_by_total_score(institutions_dict):
     for institution, scores in institutions_dict.items():
         authors_dict = scores['authors']
+
+        def calculate_author_score(author_data):
+            _, author_scores = author_data
+            return sum(score for metric, score in author_scores.items()
+                       if metric != 'paper_count' and metric != 'area_paper_counts')
+
         sorted_authors = sorted(authors_dict.items(),
-                                key=lambda x: sum_dict_values({k: v for k, v in x[1].items() if k != 'paper_count'}),
+                                key=calculate_author_score,
                                 reverse=True)
+
         scores['authors'] = dict(sorted_authors)
+
     return institutions_dict
 
 
@@ -148,7 +156,7 @@ def format_university_data(school_data: dict):
     for school, data in school_data.items():
         formatted_name = format_university_names(school)
 
-        # Calculate the average count using the formula
+        # Calculate the school's average count using this formula
         n = len(data['area_scores'])
         adjusted_counts = {i: count for i, count in enumerate(data['area_scores'].values(), start=1)}
         average_count = calculate_average_count(n, adjusted_counts)
@@ -163,14 +171,178 @@ def format_university_data(school_data: dict):
     return formatted_school_data
 
 
-def get_required_data(areas=None):
-    if areas:
-        pass
+def get_area_adjusted_score_and_paper_count(filtered_area_data: dict):
+    adjusted_score, paper_count = 0, 0
+    for pub, year in filtered_area_data.items():
+        if pub != 'area_adjusted_score':
+            for data, data_value in year.items():
+                for k, v in data_value.items():
+                    if k == 'score':
+                        adjusted_score += v
+                    elif k == 'year_paper_count':
+                        paper_count += v
 
+    return adjusted_score, paper_count
+
+
+def build_filtered_author_dict_at_area_counts(needed_areas, needed_confs, lowest_year, highest_year, unfiltered_dict):
+    filtered_author_dict_at_area_counts = {}
+
+    for area, area_data in unfiltered_dict.items():
+        if area in needed_areas:
+            filtered_area_dict = {'area_adjusted_score': 0}
+
+            for pub, pub_data in area_data.items():
+                if pub in needed_confs:
+                    filtered_conf_data = {}
+
+                    for year, year_data in pub_data.items():
+                        if lowest_year <= int(year) <= highest_year:
+                            filtered_conf_data[year] = year_data
+
+                    if filtered_conf_data:
+                        filtered_area_dict[pub] = filtered_conf_data
+
+            if len(filtered_area_dict) > 1:
+                adj_score, paper_count = get_area_adjusted_score_and_paper_count(filtered_area_dict)
+                filtered_area_dict['area_adjusted_score'] += adj_score
+                filtered_area_dict['area_paper_count'] = paper_count
+                filtered_author_dict_at_area_counts[area] = filtered_area_dict
+
+    return filtered_author_dict_at_area_counts
+
+
+def filter_all_school_author_data(author_scores: dict, filtered_data, needed_conferences, needed_areas, low_year,
+                                  high_year):
+    if author_scores:
+        # for each author, build a dict that contains only the data needed for the needed areas and confs
+        all_school_author_data_filtered = {}
+        for author, author_data in author_scores.items():
+            filtered_author_data = {}
+
+            for item, value in author_data.items():
+                if item == 'paper_count':
+                    continue
+                elif item == 'area_paper_counts':
+                    filtered_author_dict_at_area_counts = build_filtered_author_dict_at_area_counts(
+                        needed_areas=needed_areas,
+                        needed_confs=needed_conferences,
+                        lowest_year=low_year,
+                        highest_year=high_year,
+                        unfiltered_dict=value
+                    )
+
+                    filtered_author_data['area_paper_counts'] = filtered_author_dict_at_area_counts
+
+            areas, area_scores, total_paper_count = [], [], 0
+            for area, area_data in filtered_author_data['area_paper_counts'].items():
+                areas.append(area)
+                area_score = 0
+                for pub, pub_data in area_data.items():
+                    if pub != 'area_adjusted_score' and pub != 'area_paper_count':
+                        for year, year_data in pub_data.items():
+                            for data, data_value in year_data.items():
+                                if data == 'score':
+                                    area_score += data_value
+                                elif data == 'year_paper_count':
+                                    total_paper_count += data_value
+                area_scores.append(area_score)
+            filtered_author_data['paper_count'] = total_paper_count
+
+            for _area, _area_score in zip(areas, area_scores):
+                filtered_author_data[_area] = _area_score
+
+            all_school_author_data_filtered[author] = filtered_author_data
+
+        filtered_data['authors'] = all_school_author_data_filtered
+    return
+
+
+def filter_university_level_data(university: str, unfiltered_uni_data: dict, filtered_data: dict):
+    '''
+    filtered_data must have the same keys as unfiltered_uni_data at the end of this function.
+
+    :param university:
+    :param unfiltered_uni_data:
+    :param filtered_data:
+    :return:
+    '''
+    # add author count
+    filtered_data['author_count'] = unfiltered_uni_data['author_count']
+
+    # add area paper counts, add area scores, add total score
+    total_paper_counts, total_area_scores, total_score = {}, {}, 0
+    for author, author_data_dict in filtered_data['authors'].items():
+        for author_data, author_data_value in author_data_dict.items():
+            if author_data == 'area_paper_counts':
+                for area, area_data in author_data_value.items():
+                    for pub, pub_data in area_data.items():
+                        if pub == 'area_paper_count':
+                            if area not in total_paper_counts:
+                                total_paper_counts[area] = 0
+                            total_paper_counts[area] += pub_data
+            elif author_data == 'paper_count':
+                continue
+            else:
+                if author_data not in total_area_scores:
+                    total_area_scores[author_data] = 0
+                total_area_scores[author_data] += author_data_value
+
+    # add area scores
+    filtered_data['area_scores'] = total_area_scores
+
+    # add total score
+    for author_data_value in total_area_scores.values():
+        total_score += author_data_value
+    filtered_data['total_score'] = total_score
+
+    filtered_data['area_paper_counts'] = total_paper_counts
+
+
+def filter_school_data(formatted_school_data, needed_conferences, needed_areas, low_year, high_year):
+    filtered_school_data = {}
+
+    # for each uni, build a dict called filtered_data that contains only the data needed for the needed areas and confs
+    for university, data in formatted_school_data.items():
+        filtered_data = {}
+
+        # filter all author data
+        filter_all_school_author_data(
+            data.get('authors', None),
+            filtered_data,
+            needed_conferences,
+            needed_areas,
+            low_year,
+            high_year
+        )
+
+        # filter the uni level data
+        filter_university_level_data(university, data, filtered_data)
+
+        # add this school's filtered data to the result
+        filtered_school_data[university] = filtered_data
+
+    return filtered_school_data
+
+
+def get_required_data(conferences):
     school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
-    formatted_school_data = format_university_data(school_data)
 
-    sorted_school_ranks = sort_institutions_by_average_count(formatted_school_data)
+    areas_to_rank = set()
+
+    for conf in conferences:
+        category = categorize_venue.categorize_venue(conf)
+        areas_to_rank.add(category)
+
+    filtered_school_data = filter_school_data(
+        formatted_school_data=school_data,
+        needed_conferences=conferences,
+        needed_areas=areas_to_rank,
+        low_year=1995,
+        high_year=2024
+    )
+    filtered_school_data = format_university_data(filtered_school_data)
+    sorted_school_ranks = sort_institutions_by_average_count(filtered_school_data)
     sort_authors_by_total_score(sorted_school_ranks)
 
     return sorted_school_ranks
@@ -179,29 +351,39 @@ def get_required_data(areas=None):
 def home(request):
     template = f'{template_dir}home.html'
     if request.method == 'POST':
-        areas = request.POST.getlist('areas')
-        print(areas)
+        conferences = request.POST.getlist('areas')
 
         # get current ranking data
-        sorted_school_ranks = get_required_data(areas)
+        sorted_school_ranks = get_required_data(conferences)
 
         # Convert Decimal objects to float
         convert_decimals_to_float(sorted_school_ranks)
 
-        return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': areas})
+        return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': conferences})
+
+    # Define a list of all areas
+    all_conferences = [
+        'ASPLOS', 'ASPLOS (1)', 'ASPLOS (2)', 'ASPLOS (3)', 'ISCA', 'MICRO', 'MICRO (1)', 'MICRO (2)', 'HPCA',
+        'SIGCOMM', 'NSDI', 'CONEXT',
+        'CCS', 'ACM Conference on Computer and Communications Security', 'ACM CCS', 'USENIX Security',
+        'USENIX Security Symposium', 'NDSS', 'IEEE Symposium on Security and Privacy', 'IEEE Security and Privacy',
+        'SIGMOD', 'SIGMOD Conference', 'VLDB', 'ICDE', 'PODS',
+        'DAC', 'ICCAD',
+        'RTAS', 'RTSS',
+        'Supercomputing', 'HPDC', 'ICS',
+        'MobiSys', 'MobiCom', 'SenSys', 'IPSN',
+        'IMC', 'Sigmetrics',
+        'SOSP', 'OSDI', 'EuroSys', 'USENIX Annual Technical Conference', 'USENIX ATC', 'USENIX FAST', 'FAST',
+        'PLDI', 'POPL', 'OOPSLA',
+        'ASE', 'FSE', 'SIGSOFT FSE', 'ESEC/SIGSOFT FSE', 'ICSE', 'ICSE (1)', 'ICSE (2)',
+        'DISC', 'DSN', 'ICDCS', 'PODC'
+    ]
 
     # get current ranking data
-    sorted_school_ranks = get_required_data()
+
+    sorted_school_ranks = get_required_data(all_conferences)
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
 
-    # Define a list of all areas
-    all_areas = ['ASPLOS', 'ISCA', 'MICRO', 'HPCA', 'SIGCOMM', 'NSDI', 'CONEXT', 'CCS', 'ACM-Conference',
-                 'USENIX-Security', 'USENIX-Security-Symposium', 'NDSS', 'IEEE-Symposium', 'IEEE-Security-and-Privacy',
-                 'RTAS', 'RTSS', 'Supercomputing', 'HPDC', 'ICS', 'MobiSys', 'MobiCom', 'SenSys', 'IPSN', 'IMC',
-                 'Sigmetrics', 'SOSP', 'OSDI', 'EuroSys', 'USENIX-ATC', 'USENIX-ATC-Short', 'USENIX-FAST', 'FAST',
-                 'PLDI', 'POPL', 'OOPSLA', 'ASE', 'FSE', 'SIGSOFT-FSE', 'ESEC-SIGSOFT-FSE', 'ICSE', 'DISC', 'DSN',
-                 'ICDCS', 'PODC']
-
-    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': all_areas})
+    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': all_conferences})
