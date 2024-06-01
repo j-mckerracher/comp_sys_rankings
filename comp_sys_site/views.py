@@ -13,6 +13,62 @@ ROW_LIMIT = 300
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+all_conferences = [
+    "ASPLOS",
+    "ISCA",
+    "MICRO",
+    "HPCA",
+    "SIGCOMM",
+    "NSDI",
+    "CONEXT",
+    "RTSS",
+    "CCS",
+    "ACM-CCS",
+    "ACM-Conference-on-Computer-and-Communications-Security",
+    "USENIX-Security",
+    "USENIX-Security-Symposium",
+    "NDSS",
+    "IEEE-Symposium-on-Security-and-Privacy",
+    "IEEE-Security-and-Privacy",
+    "SIGMOD",
+    "SIGMOD-Conference",
+    "VLDB",
+    "ICDE",
+    "PODS",
+    "DAC",
+    "ICCAD",
+    "RTAS",
+    "RTTSS",
+    "Supercomputing",
+    "HPDC",
+    "ICS",
+    "MobiSys",
+    "MobiCom",
+    "SenSys",
+    "IPSN",
+    "IMC",
+    "Sigmetrics",
+    "SOSP",
+    "OSDI",
+    "EuroSys",
+    "USENIX-Annual-Technical-Conference",
+    "USENIX-ATC-Short",
+    "USENIX-FAST",
+    "FAST",
+    "PLDI",
+    "POPL",
+    "OOPSLA",
+    "ASE",
+    "FSE",
+    "SIGSOFT-FSE",
+    "ESEC-SIGSOFT-FSE",
+    "ICSE",
+    "DISC",
+    "DSN",
+    "ICDCS",
+    "PODC"
+]
+
 
 def read_dict_from_file(file_path: str) -> dict:
     try:
@@ -361,26 +417,7 @@ def home(request):
 
         return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': conferences})
 
-    # Define a list of all areas
-    all_conferences = [
-        'ASPLOS', 'ASPLOS (1)', 'ASPLOS (2)', 'ASPLOS (3)', 'ISCA', 'MICRO', 'MICRO (1)', 'MICRO (2)', 'HPCA',
-        'SIGCOMM', 'NSDI', 'CONEXT',
-        'CCS', 'ACM Conference on Computer and Communications Security', 'ACM CCS', 'USENIX Security',
-        'USENIX Security Symposium', 'NDSS', 'IEEE Symposium on Security and Privacy', 'IEEE Security and Privacy',
-        'SIGMOD', 'SIGMOD Conference', 'VLDB', 'ICDE', 'PODS',
-        'DAC', 'ICCAD',
-        'RTAS', 'RTSS',
-        'Supercomputing', 'HPDC', 'ICS',
-        'MobiSys', 'MobiCom', 'SenSys', 'IPSN',
-        'IMC', 'Sigmetrics',
-        'SOSP', 'OSDI', 'EuroSys', 'USENIX Annual Technical Conference', 'USENIX ATC', 'USENIX FAST', 'FAST',
-        'PLDI', 'POPL', 'OOPSLA',
-        'ASE', 'FSE', 'SIGSOFT FSE', 'ESEC/SIGSOFT FSE', 'ICSE', 'ICSE (1)', 'ICSE (2)',
-        'DISC', 'DSN', 'ICDCS', 'PODC'
-    ]
-
     # get current ranking data
-
     sorted_school_ranks = get_required_data(all_conferences)
 
     # Convert Decimal objects to float
