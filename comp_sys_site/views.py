@@ -1,6 +1,9 @@
 import json
 from decimal import Decimal
 import re
+
+from django.http import JsonResponse
+
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
 from django.shortcuts import render
 import logging
@@ -407,15 +410,10 @@ def get_required_data(conferences):
 def home(request):
     template = f'{template_dir}home.html'
     if request.method == 'POST':
-        conferences = request.POST.getlist('areas')
-
-        # get current ranking data
+        conferences = request.POST.getlist('areas[]')
         sorted_school_ranks = get_required_data(conferences)
-
-        # Convert Decimal objects to float
         convert_decimals_to_float(sorted_school_ranks)
-
-        return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': conferences})
+        return JsonResponse({'sorted_ranks': sorted_school_ranks})
 
     # get current ranking data
     sorted_school_ranks = get_required_data(all_conferences)
