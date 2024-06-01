@@ -12,6 +12,31 @@
                 <form id="filter-form">
                     {% csrf_token %}
                     <fieldset class="form-group">
+
+                        <legend class="border-bottom mb-4">Year Filter</legend>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="start-year">Start Year</label>
+                                <select class="form-control" id="start-year" name="start_year">
+                                    {% for year in year_range %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="end-year">End Year</label>
+                                <select class="form-control" id="end-year" name="end_year">
+                                    {% for year in year_range reversed %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" id="apply-year-filter-btn" class="btn btn-outline-success">Apply Year
+                            Filter
+                        </button>
+
+
                         <legend class="border-bottom mb-4">Area Filters</legend>
                         <h4>All Areas</h4>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -20,7 +45,7 @@
                                 Collapse/Expand All
                             </label>
                             <label class="btn btn-outline-primary">
-                                <input type="button" id="apply-filter-btn" autocomplete="off" value="Apply Filter">
+                                <input type="button" id="apply-filter-btn" class="btn btn-outline-success" autocomplete="off" value="Apply Filter">
                             </label>
                         </div>
                         <h4>Areas</h4>
@@ -261,7 +286,8 @@
                                                 <input type="checkbox" class="btn-check" id="Supercomputing"
                                                        name="areas" value="Supercomputing" autocomplete="off"
                                                        {% if 'Supercomputing' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="Supercomputing">Supercomputing</label>
+                                                <label class="btn btn-outline-primary"
+                                                       for="Supercomputing">Supercomputing</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPDC" name="areas"
                                                        value="HPDC" autocomplete="off"
@@ -543,96 +569,108 @@
         </div>
     </div>
 
-    <script>
-        $(document).ready(function () {
-            var institutionData = {{ sorted_ranks|safe }};
+<script>
+    $(document).ready(function () {
+        var institutionData = {{ sorted_ranks|safe }};
 
-            $('#rankings-table tbody tr .toggle-icon').click(function () {
+        $('#rankings-table tbody').on('click', '.toggle-icon', function () {
+            var row = $(this).closest('tr');
+            var institution = row.data('institution');
+            var authors = institutionData[institution].authors;
 
-                var row = $(this).closest('tr');
-                var institution = row.data('institution');
-                var authors = institutionData[institution].authors;
+            if (row.next().hasClass('sub-table-row')) {
+                row.next().remove();
+                $(this).text('+');
+            } else {
+                var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
+                subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
+                subTableHtml += '<tbody>';
 
-                if (row.next().hasClass('sub-table-row')) {
-                    row.next().remove();
-                    $(this).text('+');
-                } else {
-                    var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
-                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
-                    subTableHtml += '<tbody>';
+                if (authors && Object.keys(authors).length > 0) {
+                    for (var author in authors) {
+                        var authorData = authors[author];
+                        var paperCount = authorData['paper_count'] || 0;
+                        var areas = Object.keys(authorData['area_paper_counts'] || {}).join(", ");
+                        var score = 0;
 
-                    if (authors && Object.keys(authors).length > 0) {
-                        for (var author in authors) {
-                            var authorData = authors[author];
-                            var paperCount = authorData['paper_count'] || 0;
-                            var areas = Object.keys(authorData['area_paper_counts'] || {}).join(", ");
-                            var score = 0;
-
-                            for (var key in authorData) {
-                                if (key !== 'paper_count' && key !== 'area_paper_counts') {
-                                    score += authorData[key];
-                                }
+                        for (var key in authorData) {
+                            if (key !== 'paper_count' && key !== 'area_paper_counts') {
+                                score += authorData[key];
                             }
-
-                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
                         }
-                    } else {
-                        subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
+
+                        subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
                     }
-
-                    subTableHtml += '</tbody></table></td></tr>';
-                    row.after(subTableHtml);
-                    $(this).text('-');
+                } else {
+                    subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
                 }
-            });
 
-            $('#toggleCollapse').click(function () {
-
-                var collapsedElements = $('.collapse.multi-collapse:not(.show)');
-                var expandedElements = $('.collapse.multi-collapse.show');
-
-                if (collapsedElements.length > 0) {
-                    collapsedElements.collapse('show');
-                } else if (expandedElements.length > 0) {
-                    expandedElements.collapse('hide');
-                }
-            });
-
-            $('#apply-filter-btn').click(function () {
-                var selectedAreas = $('input[name="areas"]:checked').map(function () {
-                    return $(this).val();
-                }).get();
-
-                $.ajax({
-                    url: '{% url "home" %}',
-                    method: 'POST',
-                    data: {
-                        'areas[]': selectedAreas,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                    },
-                    success: function (response) {
-                        updateTable(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            function updateTable(data) {
-                var tableBody = $('#rankings-table tbody');
-                tableBody.empty();
-
-                $.each(data.sorted_ranks, function (institution, institutionData) {
-                    var row = '<tr data-institution="' + institution + '">' +
-                        '<td>' + (tableBody.children().length + 1) + '</td>' +
-                        '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
-                        '<td>' + institutionData.average_count + '</td>' +
-                        '<td>' + institutionData.author_count + '</td>' +
-                        '</tr>';
-                    tableBody.append(row);
-                });
+                subTableHtml += '</tbody></table></td></tr>';
+                row.after(subTableHtml);
+                $(this).text('-');
             }
         });
-    </script>
+
+        $('#toggleCollapse').click(function () {
+            var collapsedElements = $('.collapse.multi-collapse:not(.show)');
+            var expandedElements = $('.collapse.multi-collapse.show');
+
+            if (collapsedElements.length > 0) {
+                collapsedElements.collapse('show');
+            } else if (expandedElements.length > 0) {
+                expandedElements.collapse('hide');
+            }
+        });
+
+        function applyFilters() {
+            var selectedAreas = $('input[name="areas"]:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            var startYear = $('#start-year').val();
+            var endYear = $('#end-year').val();
+
+            $.ajax({
+                url: '{% url "home" %}',
+                method: 'POST',
+                data: {
+                    'areas[]': selectedAreas,
+                    'start_year': startYear,
+                    'end_year': endYear,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    institutionData = response.sorted_ranks;
+                    updateTable(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        $('#apply-filter-btn').click(function () {
+            applyFilters();
+        });
+
+        $('#apply-year-filter-btn').click(function () {
+            applyFilters();
+        });
+
+        function updateTable(data) {
+            var tableBody = $('#rankings-table tbody');
+            tableBody.empty();
+
+            $.each(data.sorted_ranks, function (institution, institutionData) {
+                var row = '<tr data-institution="' + institution + '">' +
+                    '<td>' + (tableBody.children().length + 1) + '</td>' +
+                    '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
+                    '<td>' + institutionData.average_count + '</td>' +
+                    '<td>' + institutionData.author_count + '</td>' +
+                    '</tr>';
+                tableBody.append(row);
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 import re
-
+import datetime
 from django.http import JsonResponse
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
@@ -16,6 +16,12 @@ ROW_LIMIT = 300
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def get_current_year():
+    """Gets the current year as an integer."""
+    current_date = datetime.date.today()
+    return current_date.year
 
 
 def read_dict_from_file(file_path: str) -> dict:
@@ -329,21 +335,21 @@ def filter_school_data(formatted_school_data, needed_conferences, needed_areas, 
     return filtered_school_data
 
 
-def get_required_data(conferences):
+def get_required_data(required_conferences, start_year, end_year):
     school_data = read_dict_from_file('comp_sys_site/static/required_files/all-school-adjusted-counts.json')
 
     areas_to_rank = set()
 
-    for conf in conferences:
+    for conf in required_conferences:
         category = categorize_venue.categorize_venue(conf)
         areas_to_rank.add(category)
 
     filtered_school_data = filter_school_data(
         formatted_school_data=school_data,
-        needed_conferences=conferences,
+        needed_conferences=required_conferences,
         needed_areas=areas_to_rank,
-        low_year=1995,
-        high_year=2024
+        low_year=start_year,
+        high_year=end_year
     )
     filtered_school_data = format_university_data(filtered_school_data)
     sorted_school_ranks = sort_institutions_by_average_count(filtered_school_data)
@@ -354,16 +360,26 @@ def get_required_data(conferences):
 
 def home(request):
     template = f'{template_dir}home.html'
+    current_year = get_current_year()
+    year_range = range(1970, current_year + 1)
+
     if request.method == 'POST':
         selected_conferences = request.POST.getlist('areas[]')
-        sorted_school_ranks = get_required_data(selected_conferences)
+        start_year = int(request.POST.get('start_year', 1970))
+        end_year = int(request.POST.get('end_year', current_year))
+        sorted_school_ranks = get_required_data(selected_conferences, start_year, end_year)
         convert_decimals_to_float(sorted_school_ranks)
         return JsonResponse({'sorted_ranks': sorted_school_ranks})
 
     # get current ranking data
-    sorted_school_ranks = get_required_data(conferences)
+    sorted_school_ranks = get_required_data(conferences, 1970, current_year)
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
 
-    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': conferences})
+    context = {
+        'sorted_ranks': sorted_school_ranks,
+        'selected_areas': conferences,
+        'year_range': year_range
+    }
+    return render(request, template, context)
