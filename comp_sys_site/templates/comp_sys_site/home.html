@@ -45,7 +45,8 @@
                                 Collapse/Expand All
                             </label>
                             <label class="btn btn-outline-primary">
-                                <input type="button" id="apply-filter-btn" class="btn btn-outline-success" autocomplete="off" value="Apply Filter">
+                                <input type="button" id="apply-filter-btn" class="btn btn-outline-success"
+                                       autocomplete="off" value="Apply Filter">
                             </label>
                         </div>
                         <h4>Areas</h4>
@@ -569,108 +570,108 @@
         </div>
     </div>
 
-<script>
-    $(document).ready(function () {
-        var institutionData = {{ sorted_ranks|safe }};
+    <script>
+        $(document).ready(function () {
+            var institutionData = {{ sorted_ranks|safe }};
 
-        $('#rankings-table tbody').on('click', '.toggle-icon', function () {
-            var row = $(this).closest('tr');
-            var institution = row.data('institution');
-            var authors = institutionData[institution].authors;
+            $('#rankings-table tbody').on('click', '.toggle-icon', function () {
+                var row = $(this).closest('tr');
+                var institution = row.data('institution');
+                var authors = institutionData[institution].authors;
 
-            if (row.next().hasClass('sub-table-row')) {
-                row.next().remove();
-                $(this).text('+');
-            } else {
-                var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
-                subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
-                subTableHtml += '<tbody>';
-
-                if (authors && Object.keys(authors).length > 0) {
-                    for (var author in authors) {
-                        var authorData = authors[author];
-                        var paperCount = authorData['paper_count'] || 0;
-                        var areas = Object.keys(authorData['area_paper_counts'] || {}).join(", ");
-                        var score = 0;
-
-                        for (var key in authorData) {
-                            if (key !== 'paper_count' && key !== 'area_paper_counts') {
-                                score += authorData[key];
-                            }
-                        }
-
-                        subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
-                    }
+                if (row.next().hasClass('sub-table-row')) {
+                    row.next().remove();
+                    $(this).text('+');
                 } else {
-                    subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
-                }
+                    var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
+                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
+                    subTableHtml += '<tbody>';
 
-                subTableHtml += '</tbody></table></td></tr>';
-                row.after(subTableHtml);
-                $(this).text('-');
-            }
-        });
+                    if (authors && Object.keys(authors).length > 0) {
+                        for (var author in authors) {
+                            var authorData = authors[author];
+                            var paperCount = authorData['paper_count'] || 0;
+                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                            var score = 0;
 
-        $('#toggleCollapse').click(function () {
-            var collapsedElements = $('.collapse.multi-collapse:not(.show)');
-            var expandedElements = $('.collapse.multi-collapse.show');
+                            for (var key in authorData) {
+                                if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas') {
+                                    score += authorData[key];
+                                }
+                            }
 
-            if (collapsedElements.length > 0) {
-                collapsedElements.collapse('show');
-            } else if (expandedElements.length > 0) {
-                expandedElements.collapse('hide');
-            }
-        });
+                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
+                        }
+                    } else {
+                        subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
+                    }
 
-        function applyFilters() {
-            var selectedAreas = $('input[name="areas"]:checked').map(function () {
-                return $(this).val();
-            }).get();
-
-            var startYear = $('#start-year').val();
-            var endYear = $('#end-year').val();
-
-            $.ajax({
-                url: '{% url "home" %}',
-                method: 'POST',
-                data: {
-                    'areas[]': selectedAreas,
-                    'start_year': startYear,
-                    'end_year': endYear,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function (response) {
-                    institutionData = response.sorted_ranks;
-                    updateTable(response);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
+                    subTableHtml += '</tbody></table></td></tr>';
+                    row.after(subTableHtml);
+                    $(this).text('-');
                 }
             });
-        }
 
-        $('#apply-filter-btn').click(function () {
-            applyFilters();
-        });
+            $('#toggleCollapse').click(function () {
+                var collapsedElements = $('.collapse.multi-collapse:not(.show)');
+                var expandedElements = $('.collapse.multi-collapse.show');
 
-        $('#apply-year-filter-btn').click(function () {
-            applyFilters();
-        });
-
-        function updateTable(data) {
-            var tableBody = $('#rankings-table tbody');
-            tableBody.empty();
-
-            $.each(data.sorted_ranks, function (institution, institutionData) {
-                var row = '<tr data-institution="' + institution + '">' +
-                    '<td>' + (tableBody.children().length + 1) + '</td>' +
-                    '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
-                    '<td>' + institutionData.average_count + '</td>' +
-                    '<td>' + institutionData.author_count + '</td>' +
-                    '</tr>';
-                tableBody.append(row);
+                if (collapsedElements.length > 0) {
+                    collapsedElements.collapse('show');
+                } else if (expandedElements.length > 0) {
+                    expandedElements.collapse('hide');
+                }
             });
-        }
-    });
-</script>
+
+            function applyFilters() {
+                var selectedAreas = $('input[name="areas"]:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                var startYear = $('#start-year').val();
+                var endYear = $('#end-year').val();
+
+                $.ajax({
+                    url: '{% url "home" %}',
+                    method: 'POST',
+                    data: {
+                        'areas[]': selectedAreas,
+                        'start_year': startYear,
+                        'end_year': endYear,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        institutionData = response.sorted_ranks;
+                        updateTable(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            $('#apply-filter-btn').click(function () {
+                applyFilters();
+            });
+
+            $('#apply-year-filter-btn').click(function () {
+                applyFilters();
+            });
+
+            function updateTable(data) {
+                var tableBody = $('#rankings-table tbody');
+                tableBody.empty();
+
+                $.each(data.sorted_ranks, function (institution, institutionData) {
+                    var row = '<tr data-institution="' + institution + '">' +
+                        '<td>' + (tableBody.children().length + 1) + '</td>' +
+                        '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
+                        '<td>' + institutionData.average_count + '</td>' +
+                        '<td>' + institutionData.author_count + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            }
+        });
+    </script>
 {% endblock %}

@@ -3,6 +3,7 @@ from decimal import Decimal
 import re
 import datetime
 from django.http import JsonResponse
+import heapq
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
 from comp_sys_site.helpers.all_conferences import conferences
@@ -18,19 +19,31 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def find_max_with_proximity(numbers, proximity):
+def get_two_highest(data):
+    """Returns the two highest values from a list as a set"""
+    largest = heapq.nlargest(2, data)
+    return set(largest)
+
+
+def find_max_with_proximity(numbers: list[float], proximity: int) -> set:
+    """
+    Finds the maximum value and a nearby value within a proximity range.
+
+    :param numbers: A list of floats
+    :param proximity: A percentage (0-100) representing the allowed proximity to the maximum value.
+    :return: A set containing the maximum value and a nearby value within the proximity range.
+    """
     if not numbers:
-        return []
+        return set()  # Return empty set if list is empty
 
     max_value = max(numbers)
     proximity_range = max_value * (1 - proximity / 100)
 
-    result = [max_value]
-    for num in numbers:
-        if proximity_range <= num < max_value:
-            result.append(num)
+    # Filter numbers within proximity
+    nearby_numbers = [num for num in numbers if proximity_range <= num < max_value]
 
-    return result
+    # Combine max value and nearby values (if any) using get_two_highest
+    return get_two_highest([max_value] + nearby_numbers)
 
 
 def get_current_year():
@@ -380,8 +393,13 @@ def filter_author_areas(school_data):
             for pub_area, pub_area_score in author_data.items():
                 if pub_area != 'paper_count' and pub_area != 'area_paper_counts':
                     this_author_scores.append(pub_area_score)
-            author_top_score = find_max_with_proximity(this_author_scores, proximity=5)
-
+            author_top_scores = find_max_with_proximity(this_author_scores, proximity=5)
+            top_areas = []
+            for pub_area, pub_area_score in author_data.items():
+                if pub_area != 'paper_count' and pub_area != 'area_paper_counts':
+                    if pub_area_score in author_top_scores:
+                        top_areas.append(pub_area)
+            author_data['top_areas'] = top_areas
 
 
 def home(request):
@@ -395,6 +413,7 @@ def home(request):
         end_year = int(request.POST.get('end_year', current_year))
         sorted_school_ranks = get_required_data(selected_conferences, start_year, end_year)
         convert_decimals_to_float(sorted_school_ranks)
+        filter_author_areas(sorted_school_ranks)
         return JsonResponse({'sorted_ranks': sorted_school_ranks})
 
     # get current ranking data
