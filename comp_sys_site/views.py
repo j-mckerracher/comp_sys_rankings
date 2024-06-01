@@ -18,6 +18,21 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def find_max_with_proximity(numbers, proximity):
+    if not numbers:
+        return []
+
+    max_value = max(numbers)
+    proximity_range = max_value * (1 - proximity / 100)
+
+    result = [max_value]
+    for num in numbers:
+        if proximity_range <= num < max_value:
+            result.append(num)
+
+    return result
+
+
 def get_current_year():
     """Gets the current year as an integer."""
     current_date = datetime.date.today()
@@ -358,6 +373,17 @@ def get_required_data(required_conferences, start_year, end_year):
     return sorted_school_ranks
 
 
+def filter_author_areas(school_data):
+    for uni, uni_data in school_data.items():
+        for author, author_data in uni_data['authors'].items():
+            this_author_scores = []
+            for pub_area, pub_area_score in author_data.items():
+                if pub_area != 'paper_count' and pub_area != 'area_paper_counts':
+                    this_author_scores.append(pub_area_score)
+            author_top_score = find_max_with_proximity(this_author_scores, proximity=5)
+
+
+
 def home(request):
     template = f'{template_dir}home.html'
     current_year = get_current_year()
@@ -376,6 +402,8 @@ def home(request):
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
+
+    filter_author_areas(sorted_school_ranks)
 
     context = {
         'sorted_ranks': sorted_school_ranks,
