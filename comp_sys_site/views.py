@@ -5,6 +5,7 @@ import re
 from django.http import JsonResponse
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
+from comp_sys_site.helpers.all_conferences import conferences
 from django.shortcuts import render
 import logging
 import math
@@ -15,62 +16,6 @@ ROW_LIMIT = 300
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-all_conferences = [
-    "ASPLOS",
-    "ISCA",
-    "MICRO",
-    "HPCA",
-    "SIGCOMM",
-    "NSDI",
-    "CONEXT",
-    "RTSS",
-    "CCS",
-    "ACM-CCS",
-    "ACM-Conference-on-Computer-and-Communications-Security",
-    "USENIX-Security",
-    "USENIX-Security-Symposium",
-    "NDSS",
-    "IEEE-Symposium-on-Security-and-Privacy",
-    "IEEE-Security-and-Privacy",
-    "SIGMOD",
-    "SIGMOD-Conference",
-    "VLDB",
-    "ICDE",
-    "PODS",
-    "DAC",
-    "ICCAD",
-    "RTAS",
-    "RTTSS",
-    "Supercomputing",
-    "HPDC",
-    "ICS",
-    "MobiSys",
-    "MobiCom",
-    "SenSys",
-    "IPSN",
-    "IMC",
-    "Sigmetrics",
-    "SOSP",
-    "OSDI",
-    "EuroSys",
-    "USENIX-Annual-Technical-Conference",
-    "USENIX-ATC-Short",
-    "USENIX-FAST",
-    "FAST",
-    "PLDI",
-    "POPL",
-    "OOPSLA",
-    "ASE",
-    "FSE",
-    "SIGSOFT-FSE",
-    "ESEC-SIGSOFT-FSE",
-    "ICSE",
-    "DISC",
-    "DSN",
-    "ICDCS",
-    "PODC"
-]
 
 
 def read_dict_from_file(file_path: str) -> dict:
@@ -410,15 +355,15 @@ def get_required_data(conferences):
 def home(request):
     template = f'{template_dir}home.html'
     if request.method == 'POST':
-        conferences = request.POST.getlist('areas[]')
-        sorted_school_ranks = get_required_data(conferences)
+        selected_conferences = request.POST.getlist('areas[]')
+        sorted_school_ranks = get_required_data(selected_conferences)
         convert_decimals_to_float(sorted_school_ranks)
         return JsonResponse({'sorted_ranks': sorted_school_ranks})
 
     # get current ranking data
-    sorted_school_ranks = get_required_data(all_conferences)
+    sorted_school_ranks = get_required_data(conferences)
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
 
-    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': all_conferences})
+    return render(request, template, {'sorted_ranks': sorted_school_ranks, 'selected_areas': conferences})

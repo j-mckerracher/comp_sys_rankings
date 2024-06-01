@@ -607,7 +607,7 @@
                     url: '{% url "home" %}',
                     method: 'POST',
                     data: {
-                        'areas[]': selectedAreas,  // Change 'areas' to 'areas[]'
+                        'areas[]': selectedAreas,
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function (response) {
