@@ -9,21 +9,44 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <form method="POST" action="{% url 'home' %}">
+                <form id="filter-form">
                     {% csrf_token %}
                     <fieldset class="form-group">
+
+                        <legend class="border-bottom mb-4">Year Filter</legend>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="start-year">Start Year</label>
+                                <select class="form-control" id="start-year" name="start_year">
+                                    {% for year in year_range %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="end-year">End Year</label>
+                                <select class="form-control" id="end-year" name="end_year">
+                                    {% for year in year_range reversed %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" id="apply-year-filter-btn" class="btn btn-outline-success">Apply Year
+                            Filter
+                        </button>
+
+
                         <legend class="border-bottom mb-4">Area Filters</legend>
                         <h4>All Areas</h4>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-primary">
-                                <input type="radio" name="options" id="selectAll" autocomplete="off" checked> On
-                            </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" name="options" id="deselectAll" autocomplete="off"> Off
-                            </label>
-                            <label class="btn btn-outline-primary">
                                 <input type="radio" name="options" id="toggleCollapse" autocomplete="off">
                                 Collapse/Expand All
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="button" id="apply-filter-btn" class="btn btn-outline-success"
+                                       autocomplete="off" value="Apply Filter">
                             </label>
                         </div>
                         <h4>Areas</h4>
@@ -107,9 +130,16 @@
                                                        {% if 'CCS' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="CCS">CCS</label>
 
+                                                <input type="checkbox" class="btn-check" id="ACM-CCS" name="areas"
+                                                       value="ACM-CCS" autocomplete="off"
+                                                       {% if 'ACM-CCS' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ACM-CCS">ACM CCS</label>
+
                                                 <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off"
-                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
+                                                       name="areas"
+                                                       value="ACM-Conference-on-Computer-and-Communications-Security"
+                                                       autocomplete="off"
+                                                       {% if 'ACM-Conference-on-Computer-and-Communications-Security' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="ACM-Conference">ACM
                                                     Conference on Computer and Communications Security</label>
 
@@ -132,8 +162,9 @@
                                                 <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
-                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
+                                                       name="areas" value="IEEE-Symposium-on-Security-and-Privacy"
+                                                       autocomplete="off"
+                                                       {% if 'IEEE-Symposium-on-Security-and-Privacy' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
                                                     Symposium on Security and Privacy</label>
 
@@ -158,45 +189,56 @@
                                         <div class="card card-body">
                                             <div class="btn-group-vertical" role="group"
                                                  aria-label="Vertical radio toggle button group">
-                                                <input type="checkbox" class="btn-check" id="CCS" name="areas"
-                                                       value="CCS" autocomplete="off"
-                                                       {% if 'CCS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="CCS">CCS</label>
+                                                <input type="checkbox" class="btn-check" id="SIGMOD" name="areas"
+                                                       value="SIGMOD" autocomplete="off"
+                                                       {% if 'SIGMOD' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="SIGMOD">SIGMOD</label>
 
-                                                <input type="checkbox" class="btn-check" id="ACM-Conference"
-                                                       name="areas" value="ACM-Conference" autocomplete="off"
-                                                       {% if 'ACM-Conference' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ACM-Conference">ACM
-                                                    Conference on Computer and Communications Security</label>
+                                                <input type="checkbox" class="btn-check" id="SIGMOD-Conference"
+                                                       name="areas" value="SIGMOD-Conference" autocomplete="off"
+                                                       {% if 'SIGMOD-Conference' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="SIGMOD-Conference">SIGMOD
+                                                    Conference</label>
 
-                                                <input type="checkbox" class="btn-check" id="USENIX-Security"
-                                                       name="areas" value="USENIX-Security" autocomplete="off"
-                                                       {% if 'USENIX-Security' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
+                                                <input type="checkbox" class="btn-check" id="VLDB"
+                                                       name="areas" value="VLDB" autocomplete="off"
+                                                       {% if 'VLDB' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="VLDB">VLDB
                                                     Security</label>
 
-                                                <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
-                                                       name="areas" value="USENIX-Security-Symposium" autocomplete="off"
-                                                       {% if 'USENIX-Security-Symposium' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
-                                                    Security Symposium</label>
+                                                <input type="checkbox" class="btn-check" id="ICDE"
+                                                       name="areas" value="ICDE" autocomplete="off"
+                                                       {% if 'ICDE' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ICDE">ICDE</label>
 
-                                                <input type="checkbox" class="btn-check" id="NDSS" name="areas"
-                                                       value="NDSS" autocomplete="off"
-                                                       {% if 'NDSS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
+                                                <input type="checkbox" class="btn-check" id="PODS" name="areas"
+                                                       value="PODS" autocomplete="off"
+                                                       {% if 'PODS' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="PODS">PODS</label>
+                                            </div>
 
-                                                <input type="checkbox" class="btn-check" id="IEEE-Symposium"
-                                                       name="areas" value="IEEE-Symposium" autocomplete="off"
-                                                       {% if 'IEEE-Symposium' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
-                                                    Symposium on Security and Privacy</label>
+                                        </div>
+                                    </div>
 
-                                                <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
-                                                       name="areas" value="IEEE-Security-and-Privacy" autocomplete="off"
-                                                       {% if 'IEEE-Security-and-Privacy' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
-                                                    Security and Privacy</label>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#System-Design"
+                                   role="button" aria-expanded="false" aria-controls="Databases">System Design</a>
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="System-Design">
+                                        <div class="card card-body">
+                                            <div class="btn-group-vertical" role="group"
+                                                 aria-label="Vertical radio toggle button group">
+                                                <input type="checkbox" class="btn-check" id="DAC" name="areas"
+                                                       value="DAC" autocomplete="off"
+                                                       {% if 'DAC' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="DAC">DAC</label>
+
+                                                <input type="checkbox" class="btn-check" id="ICCAD"
+                                                       name="areas" value="ICCAD" autocomplete="off"
+                                                       {% if 'ICCAD' in selected_areas %}checked{% endif %}>
+                                                <label class="btn btn-outline-primary" for="ICCAD">ICCAD</label>
                                             </div>
 
                                         </div>
@@ -245,7 +287,8 @@
                                                 <input type="checkbox" class="btn-check" id="Supercomputing"
                                                        name="areas" value="Supercomputing" autocomplete="off"
                                                        {% if 'Supercomputing' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="Supercomputing">Supercomputing</label>
+                                                <label class="btn btn-outline-primary"
+                                                       for="Supercomputing">Supercomputing</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPDC" name="areas"
                                                        value="HPDC" autocomplete="off"
@@ -354,8 +397,8 @@
                                                 <label class="btn btn-outline-primary" for="EuroSys">EuroSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC" name="areas"
-                                                       value="USENIX-ATC" autocomplete="off"
-                                                       {% if 'USENIX-ATC' in selected_areas %}checked{% endif %}>
+                                                       value="USENIX-Annual-Technical-Conference" autocomplete="off"
+                                                       {% if 'USENIX-Annual-Technical-Conference' in selected_areas %}checked{% endif %}>
                                                 <label class="btn btn-outline-primary" for="USENIX-ATC">USENIX Annual
                                                     Technical Conference</label>
 
@@ -531,7 +574,7 @@
         $(document).ready(function () {
             var institutionData = {{ sorted_ranks|safe }};
 
-            $('#rankings-table tbody tr .toggle-icon').click(function () {
+            $('#rankings-table tbody').on('click', '.toggle-icon', function () {
                 var row = $(this).closest('tr');
                 var institution = row.data('institution');
                 var authors = institutionData[institution].authors;
@@ -544,17 +587,19 @@
                     subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
                     subTableHtml += '<tbody>';
 
-                    if (Object.keys(authors).length > 0) {
+                    if (authors && Object.keys(authors).length > 0) {
                         for (var author in authors) {
-                            var authorData = {};
-                            var paperCount = authors[author]['paper_count'];
-                            for (var key in authors[author]) {
-                                if (key !== 'paper_count') {
-                                    authorData[key] = authors[author][key];
+                            var authorData = authors[author];
+                            var paperCount = authorData['paper_count'] || 0;
+                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                            var score = 0;
+
+                            for (var key in authorData) {
+                                if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas') {
+                                    score += authorData[key];
                                 }
                             }
-                            var areas = Object.keys(authorData).join(", ");
-                            var score = Object.values(authorData).reduce((a, b) => a + b, 0);
+
                             subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
                         }
                     } else {
@@ -567,17 +612,6 @@
                 }
             });
 
-            $('#selectAll').click(function () {
-                $('input[type="checkbox"]').prop('checked', true);
-            });
-
-            $('#deselectAll').click(function () {
-                $('input[type="checkbox"]').prop('checked', false);
-            });
-
-            $('input[type="checkbox"]').change(function () {
-                $(this).closest('form').submit();
-            });
             $('#toggleCollapse').click(function () {
                 var collapsedElements = $('.collapse.multi-collapse:not(.show)');
                 var expandedElements = $('.collapse.multi-collapse.show');
@@ -588,6 +622,56 @@
                     expandedElements.collapse('hide');
                 }
             });
+
+            function applyFilters() {
+                var selectedAreas = $('input[name="areas"]:checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                var startYear = $('#start-year').val();
+                var endYear = $('#end-year').val();
+
+                $.ajax({
+                    url: '{% url "home" %}',
+                    method: 'POST',
+                    data: {
+                        'areas[]': selectedAreas,
+                        'start_year': startYear,
+                        'end_year': endYear,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        institutionData = response.sorted_ranks;
+                        updateTable(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            $('#apply-filter-btn').click(function () {
+                applyFilters();
+            });
+
+            $('#apply-year-filter-btn').click(function () {
+                applyFilters();
+            });
+
+            function updateTable(data) {
+                var tableBody = $('#rankings-table tbody');
+                tableBody.empty();
+
+                $.each(data.sorted_ranks, function (institution, institutionData) {
+                    var row = '<tr data-institution="' + institution + '">' +
+                        '<td>' + (tableBody.children().length + 1) + '</td>' +
+                        '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
+                        '<td>' + institutionData.average_count + '</td>' +
+                        '<td>' + institutionData.author_count + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            }
         });
     </script>
 {% endblock %}
