@@ -1,15 +1,15 @@
 import json
+import time
 from decimal import Decimal
 import datetime
 from django.http import JsonResponse
 import heapq
-import os
 import re
 from datetime import datetime, timedelta
 import os
 import boto3
-import logging
 import shutil
+from typing import Dict
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
 from comp_sys_site.helpers.all_conferences import conferences
@@ -59,11 +59,36 @@ def get_current_year():
     return int(current_date)
 
 
-def read_dict_from_file(file_path: str) -> dict:
+def get_backup_file(backup_dir: str) -> str:
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-        return data
+        files = os.listdir(backup_dir)
+        if files:
+            backup_file = files[0]
+            backup_file_path = os.path.join(backup_dir, backup_file)
+            return backup_file_path
+        else:
+            raise FileNotFoundError(f"No backup files found in {backup_dir}")
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Backup directory not found: {backup_dir}") from e
+
+def read_dict_from_file(file_path: str) -> Dict:
+    max_count = 3
+    backup_dir = os.path.join('comp_sys_site', 'static', 'required_files', 'backup')
+    try:
+        sleep_time, count = 1, 0
+        while not os.path.exists(file_path) and count < max_count:
+            time.sleep(sleep_time)
+            sleep_time *= 2  # Increase sleep time exponentially (1, 2, 4 seconds)
+            count += 1
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            return data
+        else:
+            backup_file = get_backup_file(backup_dir)
+            with open(backup_file, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            return data
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding JSON file: {str(e)}")
         return {}
@@ -392,11 +417,11 @@ def get_from_s3():
             logging.info(f"File downloaded from S3: {local_file_path}")
 
             # Move the current file to the 'backup' folder in S3
-            # backup_file_key = backup_folder + current_file_name
-            # s3.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': current_file_key},
-            #                Key=backup_file_key)
-            # s3.delete_object(Bucket=bucket_name, Key=current_file_key)
-            # logging.info(f"File moved to backup in S3: {backup_file_key}")
+            backup_file_key = backup_folder + current_file_name
+            s3.copy_object(Bucket=bucket_name, CopySource={'Bucket': bucket_name, 'Key': current_file_key},
+                           Key=backup_file_key)
+            s3.delete_object(Bucket=bucket_name, Key=current_file_key)
+            logging.info(f"File moved to backup in S3: {backup_file_key}")
 
             return str(local_file_path)
         else:
