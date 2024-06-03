@@ -53,3 +53,5 @@ conferences = [
     "ICDCS",
     "PODC"
 ]
+
+all_areas = ['computer_architecture', 'computer_networks', 'computer_security', 'databases', 'sys_design', 'embedded_and_real_time', 'high_performance_computing', 'mobile_computing', 'measurement_and_performance_analysis', 'operating_systems', 'programming_languages', 'software_engineering', 'distributed_systems_and_dependability']
