@@ -705,10 +705,18 @@
                 });
             });
 
+            var pubDistributionChart; // Declare a variable to store the chart instance
+
             function displayPubDistributionGraph(pubDistribution) {
-                // Example using Chart.js:
                 var ctx = document.getElementById('pub-distribution-chart').getContext('2d');
-                new Chart(ctx, {
+
+                // Destroy the previous chart instance if it exists
+                if (pubDistributionChart) {
+                    pubDistributionChart.destroy();
+                }
+
+                // Create a new chart instance and store the reference
+                pubDistributionChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(pubDistribution),
