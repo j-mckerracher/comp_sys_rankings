@@ -567,6 +567,14 @@
                     </tbody>
                 </table>
             </div>
+
+            <div id="pub-distribution-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <canvas id="pub-distribution-chart"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -583,8 +591,8 @@
                     row.next().remove();
                     $(this).text('+');
                 } else {
-                    var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
-                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th></tr></thead>';
+                    var subTableHtml = '<tr class="sub-table-row"><td colspan="5"><table class="table table-responsive sub-table">';
+                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
                     subTableHtml += '<tbody>';
 
                     if (authors && Object.keys(authors).length > 0) {
@@ -600,10 +608,10 @@
                                 }
                             }
 
-                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td></tr>';
+                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
                         }
                     } else {
-                        subTableHtml += '<tr><td colspan="4">No data available</td></tr>';
+                        subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
                     }
 
                     subTableHtml += '</tbody></table></td></tr>';
@@ -672,6 +680,78 @@
                     tableBody.append(row);
                 });
             }
+
+            $(document).on('click', '.pub-distribution-link', function (e) {
+                e.preventDefault();
+                var institution = $(this).data('institution');
+                var author = $(this).data('author');
+
+                $.ajax({
+                    url: '{% url "get_author_pub_distribution" %}',
+                    method: 'POST',
+                    data: {
+                        'institution': institution,
+                        'author': author,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        var pubDistribution = response.pub_distribution;
+                        displayPubDistributionGraph(pubDistribution);
+                        openModal();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+
+            var pubDistributionChart; // Declare a variable to store the chart instance
+
+            function displayPubDistributionGraph(pubDistribution) {
+                var ctx = document.getElementById('pub-distribution-chart').getContext('2d');
+
+                // Destroy the previous chart instance if it exists
+                if (pubDistributionChart) {
+                    pubDistributionChart.destroy();
+                }
+
+                // Create a new chart instance and store the reference
+                pubDistributionChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(pubDistribution),
+                        datasets: [{
+                            label: 'Publication Count',
+                            data: Object.values(pubDistribution),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                stepSize: 1
+                            }
+                        }
+                    }
+                });
+            }
+
+            function openModal() {
+                var modal = document.getElementById('pub-distribution-modal');
+                modal.style.display = 'block';
+            }
+
+            function closeModal() {
+                var modal = document.getElementById('pub-distribution-modal');
+                modal.style.display = 'none';
+            }
+
+            $(document).on('click', '.close', function () {
+                closeModal();
+            });
+
         });
     </script>
 {% endblock %}

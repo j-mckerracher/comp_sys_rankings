@@ -12,7 +12,7 @@ import shutil
 from typing import Dict
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
-from comp_sys_site.helpers.all_conferences import conferences
+from comp_sys_site.helpers.all_conferences import conferences, all_areas
 from django.shortcuts import render
 import logging
 import math
@@ -23,6 +23,8 @@ ROW_LIMIT = 300
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+author_filtering_ignore_keys = {'area_adjusted_score', 'area_paper_count', 'dblp_link'}
 
 
 def get_two_highest(data):
@@ -70,6 +72,7 @@ def get_backup_file(backup_dir: str) -> str:
             raise FileNotFoundError(f"No backup files found in {backup_dir}")
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Backup directory not found: {backup_dir}") from e
+
 
 def read_dict_from_file(file_path: str) -> Dict:
     max_count = 3
@@ -309,7 +312,7 @@ def filter_all_school_author_data(author_scores: dict, filtered_data, needed_con
                 areas.append(area)
                 area_score = 0
                 for pub, pub_data in area_data.items():
-                    if pub != 'area_adjusted_score' and pub != 'area_paper_count':
+                    if pub not in author_filtering_ignore_keys:
                         for year, year_data in pub_data.items():
                             for data, data_value in year_data.items():
                                 if data == 'score':
@@ -329,14 +332,14 @@ def filter_all_school_author_data(author_scores: dict, filtered_data, needed_con
 
 
 def filter_university_level_data(university: str, unfiltered_uni_data: dict, filtered_data: dict):
-    '''
+    """
     filtered_data must have the same keys as unfiltered_uni_data at the end of this function.
 
     :param university:
     :param unfiltered_uni_data:
     :param filtered_data:
     :return:
-    '''
+    """
     # add author count
     filtered_data['author_count'] = unfiltered_uni_data['author_count']
 
@@ -554,6 +557,51 @@ def filter_author_areas(school_data):
             author_data['top_areas'] = top_areas
 
 
+def get_author_pub_distribution_data(institution_name, author):
+    file_path = os.path.join('comp_sys_site', 'static', 'required_files', 'formatted', 'formatted_data.json')
+    data = read_dict_from_file(file_path)
+
+    if institution_name in data and author in data[institution_name]['authors']:
+        author_data = data[institution_name]['authors'][author]['area_paper_counts']
+        pub_distribution = {area: 0 for area in all_areas}
+
+        for area, area_data in author_data.items():
+            if area != 'area_adjusted_score' and area != 'area_paper_count':
+                pub_count = area_data.get('area_paper_count', 0)
+                pub_distribution[area] = pub_count
+
+        return pub_distribution
+
+    return None
+
+
+def get_author_pub_distribution(request):
+    if request.method == 'POST':
+        institution = request.POST.get('institution')
+        author = request.POST.get('author')
+
+        # Retrieve the publication distribution data for the specified author
+        pub_distribution = get_author_pub_distribution_data(institution, author)
+
+        return JsonResponse({'pub_distribution': pub_distribution})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def write_formatted_json(data_dict: Dict):
+    """
+    Writes the contents of a dictionary to a file in JSON format, overwriting any existing content.
+
+    """
+    try:
+        file_path = os.path.join('comp_sys_site', 'static', 'required_files', 'formatted', 'formatted_data.json')
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(data_dict, file, indent=4)
+        logger.info(f"Successfully wrote data to file: {file_path}")
+    except IOError as e:
+        logger.error(f"An error occurred while writing to the file: {str(e)}")
+
+
 def home(request):
     template = f'{template_dir}home.html'
     current_year = get_current_year()
@@ -575,6 +623,8 @@ def home(request):
     convert_decimals_to_float(sorted_school_ranks)
 
     filter_author_areas(sorted_school_ranks)
+
+    write_formatted_json(data_dict=sorted_school_ranks)
 
     context = {
         'sorted_ranks': sorted_school_ranks,
