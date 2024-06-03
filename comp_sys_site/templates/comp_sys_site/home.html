@@ -579,179 +579,204 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            var institutionData = {{ sorted_ranks|safe }};
+    $(document).ready(function () {
+        console.log('Document is ready');
+        var institutionData = {{ sorted_ranks|safe }};
+        console.log('Loaded institution data:', institutionData);
 
-            $('#rankings-table tbody').on('click', '.toggle-icon', function () {
-                var row = $(this).closest('tr');
-                var institution = row.data('institution');
-                var authors = institutionData[institution].authors;
+        $('#rankings-table tbody').on('click', '.toggle-icon', function () {
+            var row = $(this).closest('tr');
+            var institution = row.data('institution');
+            var authors = institutionData[institution].authors;
+            console.log('Toggle icon clicked for institution:', institution);
 
-                if (row.next().hasClass('sub-table-row')) {
-                    row.next().remove();
-                    $(this).text('+');
+            if (row.next().hasClass('sub-table-row')) {
+                row.next().remove();
+                $(this).text('+');
+                console.log('Sub-table row removed');
+            } else {
+                var subTableHtml = '<tr class="sub-table-row"><td colspan="5"><table class="table table-responsive sub-table">';
+                subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th><th scope="col">DBLP</th></tr></thead>';
+                subTableHtml += '<tbody>';
+
+                if (authors && Object.keys(authors).length > 0) {
+                    for (var author in authors) {
+                        var authorData = authors[author];
+                        var paperCount = authorData['paper_count'] || 0;
+                        var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                        var score = 0;
+                        var dblpLink = authorData['dblp_link'] || "";
+
+                        for (var key in authorData) {
+                            if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas' && key !== 'dblp_link') {
+                                score += authorData[key];
+                            }
+                        }
+
+                        subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td><td><a href="' + dblpLink + '" target="_blank">DBLP</a></td></tr>';
+                    }
                 } else {
-                    var subTableHtml = '<tr class="sub-table-row"><td colspan="5"><table class="table table-responsive sub-table">';
-                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
-                    subTableHtml += '<tbody>';
-
-                    if (authors && Object.keys(authors).length > 0) {
-                        for (var author in authors) {
-                            var authorData = authors[author];
-                            var paperCount = authorData['paper_count'] || 0;
-                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
-                            var score = 0;
-
-                            for (var key in authorData) {
-                                if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas') {
-                                    score += authorData[key];
-                                }
-                            }
-
-                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
-                        }
-                    } else {
-                        subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
-                    }
-
-                    subTableHtml += '</tbody></table></td></tr>';
-                    row.after(subTableHtml);
-                    $(this).text('-');
-                }
-            });
-
-            $('#toggleCollapse').click(function () {
-                var collapsedElements = $('.collapse.multi-collapse:not(.show)');
-                var expandedElements = $('.collapse.multi-collapse.show');
-
-                if (collapsedElements.length > 0) {
-                    collapsedElements.collapse('show');
-                } else if (expandedElements.length > 0) {
-                    expandedElements.collapse('hide');
-                }
-            });
-
-            function applyFilters() {
-                var selectedAreas = $('input[name="areas"]:checked').map(function () {
-                    return $(this).val();
-                }).get();
-
-                var startYear = $('#start-year').val();
-                var endYear = $('#end-year').val();
-
-                $.ajax({
-                    url: '{% url "home" %}',
-                    method: 'POST',
-                    data: {
-                        'areas[]': selectedAreas,
-                        'start_year': startYear,
-                        'end_year': endYear,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                    },
-                    success: function (response) {
-                        institutionData = response.sorted_ranks;
-                        updateTable(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error:', error);
-                    }
-                });
-            }
-
-            $('#apply-filter-btn').click(function () {
-                applyFilters();
-            });
-
-            $('#apply-year-filter-btn').click(function () {
-                applyFilters();
-            });
-
-            function updateTable(data) {
-                var tableBody = $('#rankings-table tbody');
-                tableBody.empty();
-
-                $.each(data.sorted_ranks, function (institution, institutionData) {
-                    var row = '<tr data-institution="' + institution + '">' +
-                        '<td>' + (tableBody.children().length + 1) + '</td>' +
-                        '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
-                        '<td>' + institutionData.average_count + '</td>' +
-                        '<td>' + institutionData.author_count + '</td>' +
-                        '</tr>';
-                    tableBody.append(row);
-                });
-            }
-
-            $(document).on('click', '.pub-distribution-link', function (e) {
-                e.preventDefault();
-                var institution = $(this).data('institution');
-                var author = $(this).data('author');
-
-                $.ajax({
-                    url: '{% url "get_author_pub_distribution" %}',
-                    method: 'POST',
-                    data: {
-                        'institution': institution,
-                        'author': author,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                    },
-                    success: function (response) {
-                        var pubDistribution = response.pub_distribution;
-                        displayPubDistributionGraph(pubDistribution);
-                        openModal();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error:', error);
-                    }
-                });
-            });
-
-            var pubDistributionChart; // Declare a variable to store the chart instance
-
-            function displayPubDistributionGraph(pubDistribution) {
-                var ctx = document.getElementById('pub-distribution-chart').getContext('2d');
-
-                // Destroy the previous chart instance if it exists
-                if (pubDistributionChart) {
-                    pubDistributionChart.destroy();
+                    subTableHtml += '<tr><td colspan="6">No data available</td></tr>';
                 }
 
-                // Create a new chart instance and store the reference
-                pubDistributionChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(pubDistribution),
-                        datasets: [{
-                            label: 'Publication Count',
-                            data: Object.values(pubDistribution),
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                stepSize: 1
-                            }
-                        }
-                    }
-                });
+                subTableHtml += '</tbody></table></td></tr>';
+                row.after(subTableHtml);
+                $(this).text('-');
+                console.log('Sub-table row added');
             }
-
-            function openModal() {
-                var modal = document.getElementById('pub-distribution-modal');
-                modal.style.display = 'block';
-            }
-
-            function closeModal() {
-                var modal = document.getElementById('pub-distribution-modal');
-                modal.style.display = 'none';
-            }
-
-            $(document).on('click', '.close', function () {
-                closeModal();
-            });
-
         });
-    </script>
+
+        $('#toggleCollapse').click(function () {
+            var collapsedElements = $('.collapse.multi-collapse:not(.show)');
+            var expandedElements = $('.collapse.multi-collapse.show');
+            console.log('Toggle collapse button clicked');
+
+            if (collapsedElements.length > 0) {
+                collapsedElements.collapse('show');
+                console.log('Collapsed elements shown');
+            } else if (expandedElements.length > 0) {
+                expandedElements.collapse('hide');
+                console.log('Expanded elements hidden');
+            }
+        });
+
+        function applyFilters() {
+            console.log('Applying filters');
+            var selectedAreas = $('input[name="areas"]:checked').map(function () {
+                return $(this).val();
+            }).get();
+            console.log('Selected areas:', selectedAreas);
+
+            var startYear = $('#start-year').val();
+            var endYear = $('#end-year').val();
+            console.log('Selected start year:', startYear, 'Selected end year:', endYear);
+
+            $.ajax({
+                url: '{% url "home" %}',
+                method: 'POST',
+                data: {
+                    'areas[]': selectedAreas,
+                    'start_year': startYear,
+                    'end_year': endYear,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log('Filter applied successfully:', response);
+                    institutionData = response.sorted_ranks;
+                    updateTable(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        $('#apply-filter-btn').click(function () {
+            console.log('Apply filter button clicked');
+            applyFilters();
+        });
+
+        $('#apply-year-filter-btn').click(function () {
+            console.log('Apply year filter button clicked');
+            applyFilters();
+        });
+
+        function updateTable(data) {
+            console.log('Updating table with data:', data);
+            var tableBody = $('#rankings-table tbody');
+            tableBody.empty();
+
+            $.each(data.sorted_ranks, function (institution, institutionData) {
+                var row = '<tr data-institution="' + institution + '">' +
+                    '<td>' + (tableBody.children().length + 1) + '</td>' +
+                    '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
+                    '<td>' + institutionData.average_count + '</td>' +
+                    '<td>' + institutionData.author_count + '</td>' +
+                    '</tr>';
+                tableBody.append(row);
+                console.log('Added row for institution:', institution);
+            });
+        }
+
+        $(document).on('click', '.pub-distribution-link', function (e) {
+            e.preventDefault();
+            var institution = $(this).data('institution');
+            var author = $(this).data('author');
+            console.log('Publication distribution link clicked for institution:', institution, 'author:', author);
+
+            $.ajax({
+                url: '{% url "get_author_pub_distribution" %}',
+                method: 'POST',
+                data: {
+                    'institution': institution,
+                    'author': author,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log('Publication distribution data received:', response);
+                    var pubDistribution = response.pub_distribution;
+                    displayPubDistributionGraph(pubDistribution);
+                    openModal();
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+        var pubDistributionChart; // Declare a variable to store the chart instance
+
+        function displayPubDistributionGraph(pubDistribution) {
+            console.log('Displaying publication distribution graph:', pubDistribution);
+            var ctx = document.getElementById('pub-distribution-chart').getContext('2d');
+
+            // Destroy the previous chart instance if it exists
+            if (pubDistributionChart) {
+                pubDistributionChart.destroy();
+                console.log('Previous chart destroyed');
+            }
+
+            // Create a new chart instance and store the reference
+            pubDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(pubDistribution),
+                    datasets: [{
+                        label: 'Publication Count',
+                        data: Object.values(pubDistribution),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        }
+                    }
+                }
+            });
+            console.log('New chart created');
+        }
+
+        function openModal() {
+            console.log('Opening modal');
+            var modal = document.getElementById('pub-distribution-modal');
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            console.log('Closing modal');
+            var modal = document.getElementById('pub-distribution-modal');
+            modal.style.display = 'none';
+        }
+
+        $(document).on('click', '.close', function () {
+            closeModal();
+        });
+
+    });
+</script>
+
 {% endblock %}
