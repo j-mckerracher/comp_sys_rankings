@@ -86,7 +86,12 @@ li {
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 30%; /* Adjust the width to 30% */
+}
+
+#pub-distribution-chart {
+    width: 100%;
+    height: auto;
 }
 
 .close {
