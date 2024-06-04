@@ -4,7 +4,7 @@
     {
       "src": "comp_sys_rankings/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "20mb", "runtime": "python3.12" }
+      "config": { "maxLambdaSize": "15mb"}
     },
     {
       "src": "build_files.sh",
