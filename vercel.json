@@ -14,10 +14,10 @@
       }
     }
   ],
-  "routes": [
+"routes": [
     {
       "src": "/static/(.*)",
-      "dest": "/staticfiles/$1"
+      "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
