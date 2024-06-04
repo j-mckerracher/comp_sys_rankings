@@ -401,7 +401,7 @@ def filter_school_data(formatted_school_data, needed_conferences, needed_areas, 
 def get_from_s3():
     try:
         s3 = boto3.client('s3')
-        bucket_name = 'comp-sys-rankings'
+        bucket_name = os.getenv('s3-bucket')
         current_folder = 'current/'
         backup_folder = 'backup/'
 
