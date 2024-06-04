@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
-echo "Installing requirements"
+#!/bin/bash
+echo "Using Python version:"
 pip install -r requirements.txt
-python manage.py collectstatic
+python3.12 manage.py collectstatic --noinput
