@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/*h1 {*/
+/*    margin: 0;*/
+/*    font-size: 24px;*/
+/*}*/
+
+footer {
+    padding: 10px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#outer-header {
+    width: 80vw; /* Set width to 80% of the viewport width */
+    background-color: lightblue;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
