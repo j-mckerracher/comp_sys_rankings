@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Using Python version:"
-python --version
+python3 --version
 
-pip install -r requirements.txt
-python3.12 manage.py collectstatic --noinput
+pip3 install -r requirements.txt
+python3 manage.py collectstatic --noinput
