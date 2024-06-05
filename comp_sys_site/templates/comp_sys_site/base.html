@@ -4,8 +4,6 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.84.0">
 
@@ -18,7 +16,28 @@
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <!-- Custom styles for this template -->
-    <link type="text/css" href="{% static 'comp_sys_site/css/base.css' %}" rel="stylesheet">
+    {#    <link type="text/css" href="{% static 'comp_sys_site/css/base.css' %}" rel="stylesheet">#}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        footer {
+            padding: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #outer-header {
+            width: 80vw; /* Set width to 80% of the viewport width */
+            background-color: lightblue;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+    </style>
 
     <!-- block for page specific CSS files -->
     {% block extra_css %}{% endblock extra_css %}
@@ -37,7 +56,8 @@
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
             <h1 class="display-4">CompSysRankings</h1>
-            <p class="lead">CompSysRankings is a metrics-based ranking of top computer systems institutions in the United States. Click on a plus (+) to expand an institution.</p>
+            <p class="lead">CompSysRankings is a metrics-based ranking of top computer systems institutions in the
+                United States. Click on a plus (+) to expand an institution.</p>
         </div>
     </div>
 </div>
