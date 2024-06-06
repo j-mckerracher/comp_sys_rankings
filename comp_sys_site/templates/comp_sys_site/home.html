@@ -114,7 +114,7 @@
             text-decoration: none;
             cursor: pointer;
         }
-    </style>
+    </style>0
 {% endblock extra_css %}
 
 {% block content %}
@@ -658,6 +658,10 @@
             </div>
 
             <div class="col-md-9">
+                <script id="sorted-ranks-data" type="application/json">
+                    {{ sorted_ranks|safe }}
+                </script>
+
                 <table id="rankings-table" class="table table-responsive">
                     <thead>
                     <tr>
@@ -668,14 +672,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for institution, data in sorted_ranks.items %}
-                        <tr data-institution="{{ institution }}">
-                            <td>{{ forloop.counter }}</td>
-                            <td><span class="toggle-icon">+</span> {{ institution }}</td>
-                            <td>{{ data.average_count }}</td>
-                            <td>{{ data.author_count }}</td>
-                        </tr>
-                    {% endfor %}
+                    <!-- Empty tbody, will be populated by JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -686,51 +683,63 @@
                     <canvas id="pub-distribution-chart"></canvas>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
-            var institutionData = {{ sorted_ranks|safe }};
+        var sortedRanksData = JSON.parse(document.getElementById('sorted-ranks-data').textContent);
+        var institutionData = {};
 
-            $('#rankings-table tbody').on('click', '.toggle-icon', function () {
-                var row = $(this).closest('tr');
-                var institution = row.data('institution');
-                var authors = institutionData[institution].authors;
+        for (var institution in sortedRanksData) {
+            if (sortedRanksData.hasOwnProperty(institution)) {
+                institutionData[institution] = sortedRanksData[institution];
+            }
+        }
 
-                if (row.next().hasClass('sub-table-row')) {
-                    row.next().remove();
-                    $(this).text('+');
-                } else {
-                    var subTableHtml = '<tr class="sub-table-row"><td colspan="5"><table class="table table-responsive sub-table">';
-                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
-                    subTableHtml += '<tbody>';
+        updateTable();
 
-                    if (authors && Object.keys(authors).length > 0) {
-                        for (var author in authors) {
-                            var authorData = authors[author];
-                            var paperCount = authorData['paper_count'] || 0;
-                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
-                            var score = 0;
+        $('#rankings-table').on('click', '.toggle-icon', function () {
+            var row = $(this).closest('tr');
+            var institution = row.data('institution');
+            var authors = institutionData[institution].authors;
 
-                            for (var key in authorData) {
-                                if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas') {
-                                    score += authorData[key];
+            if (row.next().hasClass('sub-table-row')) {
+                row.next().remove();
+                $(this).text('+');
+            } else {
+                var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
+                subTableHtml += '<thead><tr><th scope="col">Faculty (DBLP)</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
+                subTableHtml += '<tbody>';
+
+                if (authors && Object.keys(authors).length > 0) {
+                    for (var author in authors) {
+                        var authorData = authors[author];
+                        var paperCount = authorData['paper_count'] || 0;
+                        var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                        var score = 0;
+
+                        for (var key in authorData) {
+                            if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas' && key !== 'dblp_link') {
+                                var value = parseFloat(authorData[key]);
+                                if (!isNaN(value)) {
+                                    score += value;
                                 }
                             }
-
-                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
                         }
-                    } else {
-                        subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
-                    }
 
-                    subTableHtml += '</tbody></table></td></tr>';
-                    row.after(subTableHtml);
-                    $(this).text('-');
+                        subTableHtml += '<tr><td>' + author + ' <a href="' + authorData['dblp_link'] + '" target="_blank">(DBLP)</a></td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
+                    }
+                } else {
+                    subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
                 }
-            });
+
+                subTableHtml += '</tbody></table></td></tr>';
+                row.after(subTableHtml);
+                $(this).text('-');
+            }
+        });
+
 
             $('#toggleCollapse').click(function () {
                 var collapsedElements = $('.collapse.multi-collapse:not(.show)');
@@ -778,16 +787,16 @@
                 applyFilters();
             });
 
-            function updateTable(data) {
+            function updateTable() {
                 var tableBody = $('#rankings-table tbody');
                 tableBody.empty();
 
-                $.each(data.sorted_ranks, function (institution, institutionData) {
+                $.each(institutionData, function (institution, data) {
                     var row = '<tr data-institution="' + institution + '">' +
                         '<td>' + (tableBody.children().length + 1) + '</td>' +
                         '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
-                        '<td>' + institutionData.average_count + '</td>' +
-                        '<td>' + institutionData.author_count + '</td>' +
+                        '<td>' + data.average_count + '</td>' +
+                        '<td>' + data.author_count + '</td>' +
                         '</tr>';
                     tableBody.append(row);
                 });
@@ -863,7 +872,6 @@
             $(document).on('click', '.close', function () {
                 closeModal();
             });
-
         });
     </script>
 {% endblock %}
