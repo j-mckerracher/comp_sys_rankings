@@ -624,19 +624,18 @@ def home(request):
         filter_author_areas(sorted_school_ranks)
         return JsonResponse({'sorted_ranks': sorted_school_ranks})
 
-    # get current ranking data
+    # Get current ranking data
     sorted_school_ranks = get_required_data(conferences, 1970, current_year)
 
     # Convert Decimal objects to float
     convert_decimals_to_float(sorted_school_ranks)
-
     filter_author_areas(sorted_school_ranks)
-
     write_formatted_json(data_dict=sorted_school_ranks)
 
     context = {
-        'sorted_ranks': escapejs(json.dumps(sorted_school_ranks)),
+        'sorted_ranks': json.dumps(sorted_school_ranks),
         'selected_areas': conferences,
         'year_range': year_range
     }
     return render(request, template, context)
+
