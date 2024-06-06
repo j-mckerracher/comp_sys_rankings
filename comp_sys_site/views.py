@@ -10,6 +10,7 @@ import os
 import boto3
 import shutil
 from typing import Dict
+from django.utils.html import escapejs
 
 from comp_sys_site.helpers.area_conference_mapping import categorize_venue
 from comp_sys_site.helpers.all_conferences import conferences, all_areas
@@ -137,7 +138,7 @@ def sort_authors_by_total_score(institutions_dict):
         def calculate_author_score(author_data):
             _, author_scores = author_data
             return sum(score for metric, score in author_scores.items()
-                       if metric != 'paper_count' and metric != 'area_paper_counts')
+                       if metric != 'paper_count' and metric != 'area_paper_counts' and metric != 'dblp_link')
 
         sorted_authors = sorted(authors_dict.items(),
                                 key=calculate_author_score,
@@ -149,15 +150,19 @@ def sort_authors_by_total_score(institutions_dict):
 
 
 def convert_decimals_to_float(data):
-    if isinstance(data, dict):
-        return {key: convert_decimals_to_float(value) for key, value in data.items()}
-    elif isinstance(data, list):
-        return [convert_decimals_to_float(item) for item in data]
-    elif isinstance(data, Decimal):
-        # Convert Decimal to float and round to two decimal places
-        return round(float(data), 2)
-    else:
-        return data
+    try:
+        if isinstance(data, dict):
+            return {key: convert_decimals_to_float(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [convert_decimals_to_float(item) for item in data]
+        elif isinstance(data, Decimal):
+            # Convert Decimal to float and round to two decimal places
+            return round(float(data), 2)
+        else:
+            return data
+    except Exception as e:
+        logger.error(f"convert_decimals_to_float encountered an error! {e}")
+        raise e
 
 
 def capitalize_word(word):
@@ -304,8 +309,9 @@ def filter_all_school_author_data(author_scores: dict, filtered_data, needed_con
                         highest_year=high_year,
                         unfiltered_dict=value
                     )
-
                     filtered_author_data['area_paper_counts'] = filtered_author_dict_at_area_counts
+                elif item == 'dblp_link':
+                    filtered_author_data['dblp_link'] = value
 
             areas, area_scores, total_paper_count = [], [], 0
             for area, area_data in filtered_author_data['area_paper_counts'].items():
@@ -355,6 +361,8 @@ def filter_university_level_data(university: str, unfiltered_uni_data: dict, fil
                                 total_paper_counts[area] = 0
                             total_paper_counts[area] += pub_data
             elif author_data == 'paper_count':
+                continue
+            elif author_data == 'dblp_link':
                 continue
             else:
                 if author_data not in total_area_scores:
@@ -546,7 +554,7 @@ def filter_author_areas(school_data):
         for author, author_data in uni_data['authors'].items():
             this_author_scores = []
             for pub_area, pub_area_score in author_data.items():
-                if pub_area != 'paper_count' and pub_area != 'area_paper_counts':
+                if pub_area != 'paper_count' and pub_area != 'area_paper_counts' and pub_area != 'dblp_link':
                     this_author_scores.append(pub_area_score)
             author_top_scores = find_max_with_proximity(this_author_scores, proximity=5)
             top_areas = []
@@ -627,7 +635,7 @@ def home(request):
     write_formatted_json(data_dict=sorted_school_ranks)
 
     context = {
-        'sorted_ranks': sorted_school_ranks,
+        'sorted_ranks': escapejs(json.dumps(sorted_school_ranks)),
         'selected_areas': conferences,
         'year_range': year_range
     }

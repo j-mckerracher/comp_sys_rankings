@@ -692,7 +692,7 @@
 
     <script>
         $(document).ready(function () {
-            var institutionData = {{ sorted_ranks|safe }};
+            var institutionData = {{ sorted_ranks|escapejs }};
 
             $('#rankings-table tbody').on('click', '.toggle-icon', function () {
                 var row = $(this).closest('tr');
@@ -704,7 +704,7 @@
                     $(this).text('+');
                 } else {
                     var subTableHtml = '<tr class="sub-table-row"><td colspan="5"><table class="table table-responsive sub-table">';
-                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
+                    subTableHtml += '<thead><tr><th scope="col">Faculty (DBLP)</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
                     subTableHtml += '<tbody>';
 
                     if (authors && Object.keys(authors).length > 0) {
@@ -720,7 +720,7 @@
                                 }
                             }
 
-                            subTableHtml += '<tr><td>' + author + '</td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
+                            subTableHtml += '<tr><td>' + author + ' <a href="' + authorData['dblp_link'] + '" target="_blank">(DBLP)</a></td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
                         }
                     } else {
                         subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
