@@ -149,19 +149,20 @@
                         </button>
 
 
-                        <legend class="border-bottom mb-4">Area Filters</legend>
-                        <h4>All Areas</h4>
-                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <legend class="border-bottom mb-4 pt-4">Area Filters</legend>
+
+                        <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-primary">
-                                <input type="radio" name="options" id="toggleCollapse" autocomplete="off">
+                                <input type="radio" class="btn-check" name="options" id="toggleCollapse" autocomplete="off">
                                 Collapse/Expand All
                             </label>
                             <label class="btn btn-outline-primary">
-                                <input type="button" id="apply-filter-btn" class="btn btn-outline-primary"
+                                <input type="button" id="apply-filter-btn" class="btn btn-primary"
                                        autocomplete="off" value="Apply Filter">
                             </label>
                         </div>
-                        <h4>Areas</h4>
+
+                        <h4 class="pt-2">Areas</h4>
                         <ul>
                             <li>
                                 <a class="btn btn-outline-primary" data-bs-toggle="collapse"
@@ -688,57 +689,57 @@
 
     <script>
         $(document).ready(function () {
-        var sortedRanksData = JSON.parse(document.getElementById('sorted-ranks-data').textContent);
-        var institutionData = {};
+            var sortedRanksData = JSON.parse(document.getElementById('sorted-ranks-data').textContent);
+            var institutionData = {};
 
-        for (var institution in sortedRanksData) {
-            if (sortedRanksData.hasOwnProperty(institution)) {
-                institutionData[institution] = sortedRanksData[institution];
+            for (var institution in sortedRanksData) {
+                if (sortedRanksData.hasOwnProperty(institution)) {
+                    institutionData[institution] = sortedRanksData[institution];
+                }
             }
-        }
 
-        updateTable();
+            updateTable();
 
-        $('#rankings-table').on('click', '.toggle-icon', function () {
-            var row = $(this).closest('tr');
-            var institution = row.data('institution');
-            var authors = institutionData[institution].authors;
+            $('#rankings-table').on('click', '.toggle-icon', function () {
+                var row = $(this).closest('tr');
+                var institution = row.data('institution');
+                var authors = institutionData[institution].authors;
 
-            if (row.next().hasClass('sub-table-row')) {
-                row.next().remove();
-                $(this).text('+');
-            } else {
-                var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
-                subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
-                subTableHtml += '<tbody>';
+                if (row.next().hasClass('sub-table-row')) {
+                    row.next().remove();
+                    $(this).text('+');
+                } else {
+                    var subTableHtml = '<tr class="sub-table-row"><td colspan="4"><table class="table table-responsive sub-table">';
+                    subTableHtml += '<thead><tr><th scope="col">Faculty</th><th scope="col">Areas</th><th scope="col">Pub. Count</th><th scope="col">Adjusted</th><th scope="col">Distribution</th></tr></thead>';
+                    subTableHtml += '<tbody>';
 
-                if (authors && Object.keys(authors).length > 0) {
-                    for (var author in authors) {
-                        var authorData = authors[author];
-                        var paperCount = authorData['paper_count'] || 0;
-                        var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
-                        var score = 0;
+                    if (authors && Object.keys(authors).length > 0) {
+                        for (var author in authors) {
+                            var authorData = authors[author];
+                            var paperCount = authorData['paper_count'] || 0;
+                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                            var score = 0;
 
-                        for (var key in authorData) {
-                            if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas' && key !== 'dblp_link') {
-                                var value = parseFloat(authorData[key]);
-                                if (!isNaN(value)) {
-                                    score += value;
+                            for (var key in authorData) {
+                                if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas' && key !== 'dblp_link') {
+                                    var value = parseFloat(authorData[key]);
+                                    if (!isNaN(value)) {
+                                        score += value;
+                                    }
                                 }
                             }
+
+                            subTableHtml += '<tr><td>' + author + ' <a href="' + authorData['dblp_link'] + '" target="_blank">(DBLP)</a></td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
                         }
-
-                        subTableHtml += '<tr><td>' + author + ' <a href="' + authorData['dblp_link'] + '" target="_blank">(DBLP)</a></td><td>' + areas + '</td><td>' + paperCount + '</td><td>' + score.toFixed(2) + '</td><td><a href="#" class="pub-distribution-link" data-institution="' + institution + '" data-author="' + author + '">Pub Distribution</a></td></tr>';
+                    } else {
+                        subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
                     }
-                } else {
-                    subTableHtml += '<tr><td colspan="5">No data available</td></tr>';
-                }
 
-                subTableHtml += '</tbody></table></td></tr>';
-                row.after(subTableHtml);
-                $(this).text('-');
-            }
-        });
+                    subTableHtml += '</tbody></table></td></tr>';
+                    row.after(subTableHtml);
+                    $(this).text('-');
+                }
+            });
 
 
             $('#toggleCollapse').click(function () {
