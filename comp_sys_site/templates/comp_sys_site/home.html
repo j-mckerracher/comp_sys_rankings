@@ -114,6 +114,42 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        .help-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 12px;
+            line-height: 16px;
+            cursor: help;
+            position: relative;
+        }
+
+        .help-icon::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .help-icon:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 {% endblock extra_css %}
 
@@ -153,7 +189,8 @@
 
                         <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-primary">
-                                <input type="radio" class="btn-check" name="options" id="toggleCollapse" autocomplete="off">
+                                <input type="radio" class="btn-check" name="options" id="toggleCollapse"
+                                       autocomplete="off">
                                 Collapse/Expand All
                             </label>
                             <label class="btn btn-outline-primary">
@@ -668,8 +705,11 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Institution</th>
-                        <th scope="col">Count</th>
-                        <th scope="col">Faculty</th>
+                        <th scope="col">Count <span class="help-icon"
+                                                    data-tooltip="The geometric mean publication count for the institution for all selected areas.">?</span>
+                        </th>
+                        <th scope="col">Faculty <span class="help-icon"
+                                                    data-tooltip="The faculty count for the institution included in the DBLP.">?</span>
                     </tr>
                     </thead>
                     <tbody>
