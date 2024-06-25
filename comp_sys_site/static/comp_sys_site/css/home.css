@@ -108,3 +108,39 @@ li {
     text-decoration: none;
     cursor: pointer;
 }
+
+.help-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    line-height: 16px;
+    cursor: help;
+    position: relative;
+}
+
+.help-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.help-icon:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
