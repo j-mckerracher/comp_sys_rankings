@@ -709,7 +709,7 @@
                                                     data-tooltip="The geometric mean publication count for the institution for all selected areas.">?</span>
                         </th>
                         <th scope="col">Faculty <span class="help-icon"
-                                                    data-tooltip="The institution faculty count included in the DBLP.">?</span>
+                                                      data-tooltip="The institution faculty count included in the DBLP.">?</span>
                     </tr>
                     </thead>
                     <tbody>
@@ -725,6 +725,17 @@
                 </div>
             </div>
         </div>
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <hr>
+                <p>
+                    <a href="#" id="feedback-link" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-comment-alt"></i> Provide Feedback or Report Issues
+                    </a>
+                </p>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -757,7 +768,7 @@
                         for (var author in authors) {
                             var authorData = authors[author];
                             var paperCount = authorData['paper_count'] || 0;
-                            var areas = authorData['top_areas'] ? authorData['top_areas'].join(", ") : "";
+                            var areas = authorData['top_areas'] ? authorData['top_areas'].map(formatAreaName).join(", ") : "";
                             var score = 0;
 
                             for (var key in authorData) {
@@ -909,6 +920,25 @@
                 var modal = document.getElementById('pub-distribution-modal');
                 modal.style.display = 'none';
             }
+
+            function formatAreaName(area) {
+                const lowercaseWords = ['and', 'of', 'in', 'on', 'for', 'the', 'to'];
+                return area.split('_')
+                    .map((word, index) => {
+                        if (index === 0 || !lowercaseWords.includes(word)) {
+                            return word.charAt(0).toUpperCase() + word.slice(1);
+                        }
+                        return word;
+                    })
+                    .join(' ');
+            }
+
+            $('#feedback-link').click(function (e) {
+                e.preventDefault();
+                var subject = encodeURIComponent("Feedback for CompSys Rankings Site");
+                var body = encodeURIComponent("Dear Team,\n\nI have the following feedback or issue to report:\n\n[Please describe your feedback or the issue you've encountered here]\n\nBest regards,\n[Your Name]");
+                window.location.href = "mailto:compsysrankings@gmail.com?subject=" + subject + "&body=" + body;
+            });
 
             $(document).on('click', '.close', function () {
                 closeModal();
