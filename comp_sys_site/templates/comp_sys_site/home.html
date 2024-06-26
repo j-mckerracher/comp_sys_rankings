@@ -189,12 +189,20 @@
 
                         <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-primary">
-                                <input type="radio" class="btn-check" name="options" id="toggleCollapse"
+                                <input type="radio" class="btn btn-primary" name="options" id="toggleCollapse"
                                        autocomplete="off">
-                                Collapse/Expand All
+                                Collapse/Expand All Areas
                             </label>
                             <label class="btn btn-outline-primary">
-                                <input type="button" id="apply-filter-btn" class="btn btn-primary"
+                                <input type="button" id="select-all-btn" class="btn btn-outline-primary"
+                                       autocomplete="off" value="Select All Conferences">
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="button" id="deselect-all-btn" class="btn btn-outline-primary"
+                                       autocomplete="off" value="Deselect All Conferences">
+                            </label>
+                            <label class="btn btn-outline-primary">
+                                <input type="button" id="apply-filter-btn" class="btn btn-outline-primary"
                                        autocomplete="off" value="Apply Filter">
                             </label>
                         </div>
@@ -942,6 +950,14 @@
 
             $(document).on('click', '.close', function () {
                 closeModal();
+            });
+
+            $('#select-all-btn').click(function () {
+                $('input[name="areas"]').prop('checked', true);
+            });
+
+            $('#deselect-all-btn').click(function () {
+                $('input[name="areas"]').prop('checked', false);
             });
         });
     </script>
