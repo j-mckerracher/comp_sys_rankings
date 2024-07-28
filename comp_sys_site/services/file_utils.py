@@ -91,7 +91,7 @@ class FileUtils:
             backup_dir = os.path.join('comp_sys_site', 'static', 'required_files', 'backup')
             new_file_name = None
             old_file_name = None
-            creation_time_threshold = datetime.now() - timedelta(days=30)
+            creation_time_threshold = datetime.now() - timedelta(days=300)
 
             for file in os.listdir(file_dir):
                 match = re.search(r'all-school-scores-final-(\w+)-(\d{1,2})-(\d{4})', file)
