@@ -767,6 +767,7 @@
                     if (authors && Object.keys(authors).length > 0) {
                         for (var author in authors) {
                             var authorData = authors[author];
+                            console.log('Author:', author, 'Data:', authorData);
                             var paperCount = authorData['paper_count'] || 0;
                             var areas = authorData['top_areas'] ? authorData['top_areas'].map(formatAreaName).join(", ") : "";
                             var score = 0;
