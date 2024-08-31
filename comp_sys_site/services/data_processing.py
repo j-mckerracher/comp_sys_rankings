@@ -66,7 +66,7 @@ class DataProcessing:
             else:
                 raise ValueError(f"Unsupported value type: {type(value)}")
 
-        return total
+        return round(total, 2)
 
     @staticmethod
     def sort_authors_by_total_score(institutions_dict):
