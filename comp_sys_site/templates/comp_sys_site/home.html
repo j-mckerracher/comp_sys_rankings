@@ -781,7 +781,7 @@
 
                             for (var key in authorData) {
                                 if (key !== 'paper_count' && key !== 'area_paper_counts' && key !== 'top_areas' && key !== 'dblp_link') {
-                                    var value = parseFloat(authorData[key].toFixed(2));
+                                    var value = parseFloat(authorData[key]);
                                     if (!isNaN(value)) {
                                         score += value;
                                     }
@@ -855,7 +855,7 @@
                     var row = '<tr data-institution="' + institution + '">' +
                         '<td>' + (tableBody.children().length + 1) + '</td>' +
                         '<td><span class="toggle-icon">+</span> ' + institution + '</td>' +
-                        '<td>' + data.average_count + '</td>' +
+                        '<td>' + parseFloat(data.average_count).toFixed(2) + '</td>' +
                         '<td>' + data.author_count + '</td>' +
                         '</tr>';
                     tableBody.append(row);
