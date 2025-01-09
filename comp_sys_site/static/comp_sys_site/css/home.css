@@ -26,6 +26,7 @@ li {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    background-color: #6f727b;
 }
 
 #rankings-table thead th {
@@ -65,7 +66,7 @@ li {
 
 .toggle-icon {
     font-weight: bold;
-    color: #007bff;
+    color: #daaa00;
     cursor: pointer;
 }
 
@@ -113,8 +114,8 @@ li {
     display: inline-block;
     width: 16px;
     height: 16px;
-    background-color: #007bff;
-    color: white;
+    background-color: #daaa00;
+    color: black;
     border-radius: 50%;
     text-align: center;
     font-size: 12px;
@@ -143,4 +144,38 @@ li {
 .help-icon:hover::after {
     opacity: 1;
     visibility: visible;
+}
+
+
+.container {
+    margin-top: 20px;
+}
+
+.form-row {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group label {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: auto;
+    min-width: 100px;
+}
+
+#apply-year-filter-btn {
+    margin-top: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

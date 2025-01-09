@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-    {#    <link type="text/css" href="{% static 'comp_sys_site/css/home.css' %}" rel="stylesheet">#}
     <style>
         .container {
             margin-top: 20px;
@@ -35,7 +34,7 @@
         }
 
         #rankings-table thead th {
-            background-color: #f2f2f2;
+            background-color: #9d9795;
             font-weight: bold;
         }
 
@@ -48,10 +47,10 @@
             cursor: pointer;
         }
 
-        .sub-table {
-            width: 100%;
-            margin-top: 10px;
-        }
+        {#.sub-table {#}
+        {#    width: 100%;#}
+        {#    margin-top: 10px;#}
+        {#}#}
 
         .sub-table th,
         .sub-table td {
@@ -67,12 +66,6 @@
 
         .sub-table tbody tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-
-        .toggle-icon {
-            font-weight: bold;
-            color: #007bff;
-            cursor: pointer;
         }
 
         .modal {
@@ -100,6 +93,10 @@
             height: auto;
         }
 
+        #rankings-table-head {
+            background-color: #6f727b;
+        }
+
         .close {
             color: #aaa;
             float: right;
@@ -119,8 +116,8 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            background-color: #007bff;
-            color: white;
+            background-color: #daaa00;
+            color: black;
             border-radius: 50%;
             text-align: center;
             font-size: 12px;
@@ -156,23 +153,23 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-3 text-center">
                 <form id="filter-form">
                     {% csrf_token %}
                     <fieldset class="form-group">
 
                         <legend class="border-bottom mb-4">Year Filter</legend>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label for="start-year">Start Year</label>
+                        <div class="form-row d-flex justify-content-center text-center">
+                            <div class="form-group col-md-4">
+                                <label for="start-year" class="mb-2">Start Year</label>
                                 <select class="form-control" id="start-year" name="start_year">
                                     {% for year in year_range %}
                                         <option value="{{ year }}">{{ year }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label for="end-year">End Year</label>
+                            <div class="form-group col-md-4">
+                                <label for="end-year" class="mb-2">End Year</label>
                                 <select class="form-control" id="end-year" name="end_year">
                                     {% for year in year_range reversed %}
                                         <option value="{{ year }}">{{ year }}</option>
@@ -180,37 +177,43 @@
                                 </select>
                             </div>
                         </div>
-                        <button type="button" id="apply-year-filter-btn" class="btn btn-outline-primary">Apply Year
-                            Filter
-                        </button>
+
+                        <div class="container pt-2">
+                            <button type="button" id="apply-year-filter-btn" class="btn btn-outline-dark">Apply Year
+                                Filter
+                            </button>
+                        </div>
 
 
                         <legend class="border-bottom mb-4 pt-4">Area Filters</legend>
 
                         <div class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
-                            <label class="btn btn-outline-primary">
-                                <input type="radio" class="btn btn-primary" name="options" id="toggleCollapse"
-                                       autocomplete="off">
-                                Collapse/Expand All Areas
-                            </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="button" id="select-all-btn" class="btn btn-outline-primary"
+
+                            <label class="btn">
+                                <input type="button" id="select-all-btn" class="btn btn-outline-dark"
                                        autocomplete="off" value="Select All Conferences">
                             </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="button" id="deselect-all-btn" class="btn btn-outline-primary"
+                            <label class="btn">
+                                <input type="button" id="deselect-all-btn" class="btn btn-outline-dark"
                                        autocomplete="off" value="Deselect All Conferences">
                             </label>
-                            <label class="btn btn-outline-primary">
-                                <input type="button" id="apply-filter-btn" class="btn btn-outline-primary"
-                                       autocomplete="off" value="Apply Filter">
+
+                            <label class="btn">
+                                <input type="button" class="btn btn-outline-dark" name="options"
+                                       id="toggleCollapse"
+                                       autocomplete="off" value="Collapse/Expand All Areas">
+                            </label>
+
+                            <label class="btn">
+                                <input type="button" id="apply-filter-btn" class="btn btn-outline-dark btn-lg"
+                                       autocomplete="off" value="Apply Area Filter">
                             </label>
                         </div>
 
-                        <h4 class="pt-2">Areas</h4>
+                        <h4 class="border-bottom mb-4 pt-2">Areas</h4>
                         <ul>
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Computer-architecture"
                                    role="button" aria-expanded="false" aria-controls="Computer-architecture">Computer
                                     architecture</a>
@@ -223,22 +226,22 @@
                                                 <input type="checkbox" class="btn-check" id="ASPLOS" name="areas"
                                                        value="ASPLOS" autocomplete="off"
                                                        {% if 'ASPLOS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ASPLOS">ASPLOS</label>
+                                                <label class="btn btn-outline-dark" for="ASPLOS">ASPLOS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ISCA" name="areas"
                                                        value="ISCA" autocomplete="off"
                                                        {% if 'ISCA' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ISCA">ISCA</label>
+                                                <label class="btn btn-outline-dark" for="ISCA">ISCA</label>
 
                                                 <input type="checkbox" class="btn-check" id="MICRO" name="areas"
                                                        value="MICRO" autocomplete="off"
                                                        {% if 'MICRO' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="MICRO">MICRO</label>
+                                                <label class="btn btn-outline-dark" for="MICRO">MICRO</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPCA" name="areas"
                                                        value="HPCA" autocomplete="off"
                                                        {% if 'HPCA' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="HPCA">HPCA</label>
+                                                <label class="btn btn-outline-dark" for="HPCA">HPCA</label>
 
                                             </div>
                                         </div>
@@ -246,7 +249,7 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Computer-networks"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#Computer-networks"
                                    role="button" aria-expanded="false" aria-controls="Computer-networks">Computer
                                     networks</a>
                                 <div class="col">
@@ -257,17 +260,17 @@
                                                 <input type="checkbox" class="btn-check" id="SIGCOMM" name="areas"
                                                        value="SIGCOMM" autocomplete="off"
                                                        {% if 'SIGCOMM' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SIGCOMM">SIGCOMM</label>
+                                                <label class="btn btn-outline-dark" for="SIGCOMM">SIGCOMM</label>
 
                                                 <input type="checkbox" class="btn-check" id="NSDI" name="areas"
                                                        value="NSDI" autocomplete="off"
                                                        {% if 'NSDI' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="NSDI">NSDI</label>
+                                                <label class="btn btn-outline-dark" for="NSDI">NSDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="CONEXT" name="areas"
                                                        value="CONEXT" autocomplete="off"
                                                        {% if 'CONEXT' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="CONEXT">CONEXT</label>
+                                                <label class="btn btn-outline-dark" for="CONEXT">CONEXT</label>
 
                                             </div>
                                         </div>
@@ -275,7 +278,7 @@
 
                                 </div>
                             </li>
-                            <li><a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Computer-security"
+                            <li><a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#Computer-security"
                                    role="button" aria-expanded="false" aria-controls="Computer-security">Computer
                                 security</a>
                                 <div class="col">
@@ -286,51 +289,51 @@
                                                 <input type="checkbox" class="btn-check" id="CCS" name="areas"
                                                        value="CCS" autocomplete="off"
                                                        {% if 'CCS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="CCS">CCS</label>
+                                                <label class="btn btn-outline-dark" for="CCS">CCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ACM-CCS" name="areas"
                                                        value="ACM-CCS" autocomplete="off"
                                                        {% if 'ACM-CCS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ACM-CCS">ACM CCS</label>
+                                                <label class="btn btn-outline-dark" for="ACM-CCS">ACM CCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="ACM-Conference"
                                                        name="areas"
                                                        value="ACM-Conference-on-Computer-and-Communications-Security"
                                                        autocomplete="off"
                                                        {% if 'ACM-Conference-on-Computer-and-Communications-Security' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ACM-Conference">ACM
+                                                <label class="btn btn-outline-dark" for="ACM-Conference">ACM
                                                     Conference on Computer and Communications Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security"
                                                        name="areas" value="USENIX-Security" autocomplete="off"
                                                        {% if 'USENIX-Security' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security">USENIX
+                                                <label class="btn btn-outline-dark" for="USENIX-Security">USENIX
                                                     Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-Security-Symposium"
                                                        name="areas" value="USENIX-Security-Symposium"
                                                        autocomplete="off"
                                                        {% if 'USENIX-Security-Symposium' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-Security-Symposium">USENIX
+                                                <label class="btn btn-outline-dark" for="USENIX-Security-Symposium">USENIX
                                                     Security Symposium</label>
 
                                                 <input type="checkbox" class="btn-check" id="NDSS" name="areas"
                                                        value="NDSS" autocomplete="off"
                                                        {% if 'NDSS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="NDSS">NDSS</label>
+                                                <label class="btn btn-outline-dark" for="NDSS">NDSS</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Symposium"
                                                        name="areas" value="IEEE-Symposium-on-Security-and-Privacy"
                                                        autocomplete="off"
                                                        {% if 'IEEE-Symposium-on-Security-and-Privacy' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Symposium">IEEE
+                                                <label class="btn btn-outline-dark" for="IEEE-Symposium">IEEE
                                                     Symposium on Security and Privacy</label>
 
                                                 <input type="checkbox" class="btn-check" id="IEEE-Security-and-Privacy"
                                                        name="areas" value="IEEE-Security-and-Privacy"
                                                        autocomplete="off"
                                                        {% if 'IEEE-Security-and-Privacy' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IEEE-Security-and-Privacy">IEEE
+                                                <label class="btn btn-outline-dark" for="IEEE-Security-and-Privacy">IEEE
                                                     Security and Privacy</label>
 
                                             </div>
@@ -340,7 +343,7 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Databases"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#Databases"
                                    role="button" aria-expanded="false" aria-controls="Databases">Databases</a>
                                 <div class="col">
                                     <div class="collapse multi-collapse" id="Databases">
@@ -350,29 +353,29 @@
                                                 <input type="checkbox" class="btn-check" id="SIGMOD" name="areas"
                                                        value="SIGMOD" autocomplete="off"
                                                        {% if 'SIGMOD' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SIGMOD">SIGMOD</label>
+                                                <label class="btn btn-outline-dark" for="SIGMOD">SIGMOD</label>
 
                                                 <input type="checkbox" class="btn-check" id="SIGMOD-Conference"
                                                        name="areas" value="SIGMOD-Conference" autocomplete="off"
                                                        {% if 'SIGMOD-Conference' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SIGMOD-Conference">SIGMOD
+                                                <label class="btn btn-outline-dark" for="SIGMOD-Conference">SIGMOD
                                                     Conference</label>
 
                                                 <input type="checkbox" class="btn-check" id="VLDB"
                                                        name="areas" value="VLDB" autocomplete="off"
                                                        {% if 'VLDB' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="VLDB">VLDB
+                                                <label class="btn btn-outline-dark" for="VLDB">VLDB
                                                     Security</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICDE"
                                                        name="areas" value="ICDE" autocomplete="off"
                                                        {% if 'ICDE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ICDE">ICDE</label>
+                                                <label class="btn btn-outline-dark" for="ICDE">ICDE</label>
 
                                                 <input type="checkbox" class="btn-check" id="PODS" name="areas"
                                                        value="PODS" autocomplete="off"
                                                        {% if 'PODS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="PODS">PODS</label>
+                                                <label class="btn btn-outline-dark" for="PODS">PODS</label>
                                             </div>
 
                                         </div>
@@ -381,7 +384,7 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#System-Design"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#System-Design"
                                    role="button" aria-expanded="false" aria-controls="Databases">System Design</a>
                                 <div class="col">
                                     <div class="collapse multi-collapse" id="System-Design">
@@ -391,12 +394,12 @@
                                                 <input type="checkbox" class="btn-check" id="DAC" name="areas"
                                                        value="DAC" autocomplete="off"
                                                        {% if 'DAC' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="DAC">DAC</label>
+                                                <label class="btn btn-outline-dark" for="DAC">DAC</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICCAD"
                                                        name="areas" value="ICCAD" autocomplete="off"
                                                        {% if 'ICCAD' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ICCAD">ICCAD</label>
+                                                <label class="btn btn-outline-dark" for="ICCAD">ICCAD</label>
                                             </div>
 
                                         </div>
@@ -405,7 +408,7 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Embedded-and-Real-time"
                                    role="button" aria-expanded="false" aria-controls="Embedded-and-Real-time">Embedded
                                     and
@@ -418,12 +421,12 @@
                                                 <input type="checkbox" class="btn-check" id="RTAS" name="areas"
                                                        value="RTAS" autocomplete="off"
                                                        {% if 'RTAS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="RTAS">RTAS</label>
+                                                <label class="btn btn-outline-dark" for="RTAS">RTAS</label>
 
                                                 <input type="checkbox" class="btn-check" id="RTSS" name="areas"
                                                        value="RTSS" autocomplete="off"
                                                        {% if 'RTSS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="RTSS">RTSS</label>
+                                                <label class="btn btn-outline-dark" for="RTSS">RTSS</label>
                                             </div>
 
                                         </div>
@@ -433,7 +436,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#High-performance-computing"
                                    role="button" aria-expanded="false" aria-controls="High-performance-computing">High-performance
                                     computing</a>
@@ -445,18 +448,18 @@
                                                 <input type="checkbox" class="btn-check" id="Supercomputing"
                                                        name="areas" value="Supercomputing" autocomplete="off"
                                                        {% if 'Supercomputing' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary"
+                                                <label class="btn btn-outline-dark"
                                                        for="Supercomputing">Supercomputing</label>
 
                                                 <input type="checkbox" class="btn-check" id="HPDC" name="areas"
                                                        value="HPDC" autocomplete="off"
                                                        {% if 'HPDC' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="HPDC">HPDC</label>
+                                                <label class="btn btn-outline-dark" for="HPDC">HPDC</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICS" name="areas"
                                                        value="ICS" autocomplete="off"
                                                        {% if 'ICS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ICS">ICS</label>
+                                                <label class="btn btn-outline-dark" for="ICS">ICS</label>
                                             </div>
 
                                         </div>
@@ -466,7 +469,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Mobile-computing"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#Mobile-computing"
                                    role="button" aria-expanded="false" aria-controls="Mobile-computing">Mobile
                                     computing</a>
                                 <div class="col">
@@ -477,22 +480,22 @@
                                                 <input type="checkbox" class="btn-check" id="MobiSys" name="areas"
                                                        value="MobiSys" autocomplete="off"
                                                        {% if 'MobiSys' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="MobiSys">MobiSys</label>
+                                                <label class="btn btn-outline-dark" for="MobiSys">MobiSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="MobiCom" name="areas"
                                                        value="MobiCom" autocomplete="off"
                                                        {% if 'MobiCom' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="MobiCom">MobiCom</label>
+                                                <label class="btn btn-outline-dark" for="MobiCom">MobiCom</label>
 
                                                 <input type="checkbox" class="btn-check" id="SenSys" name="areas"
                                                        value="SenSys" autocomplete="off"
                                                        {% if 'SenSys' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SenSys">SenSys</label>
+                                                <label class="btn btn-outline-dark" for="SenSys">SenSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="IPSN" name="areas"
                                                        value="IPSN" autocomplete="off"
                                                        {% if 'IPSN' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IPSN">IPSN</label>
+                                                <label class="btn btn-outline-dark" for="IPSN">IPSN</label>
                                             </div>
 
                                         </div>
@@ -502,7 +505,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Measurement-and-Performance-analysis"
                                    role="button" aria-expanded="false"
                                    aria-controls="Measurement-and-Performance-analysis">Measurement
@@ -515,12 +518,12 @@
                                                 <input type="checkbox" class="btn-check" id="IMC" name="areas"
                                                        value="IMC" autocomplete="off"
                                                        {% if 'IMC' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="IMC">IMC</label>
+                                                <label class="btn btn-outline-dark" for="IMC">IMC</label>
 
                                                 <input type="checkbox" class="btn-check" id="Sigmetrics" name="areas"
                                                        value="Sigmetrics" autocomplete="off"
                                                        {% if 'Sigmetrics' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary"
+                                                <label class="btn btn-outline-dark"
                                                        for="Sigmetrics">Sigmetrics</label>
                                             </div>
 
@@ -531,7 +534,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse" href="#Operating-systems"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse" href="#Operating-systems"
                                    role="button" aria-expanded="false" aria-controls="Operating-systems">Operating
                                     systems</a>
                                 <div class="col">
@@ -542,40 +545,40 @@
                                                 <input type="checkbox" class="btn-check" id="SOSP" name="areas"
                                                        value="SOSP" autocomplete="off"
                                                        {% if 'SOSP' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SOSP">SOSP</label>
+                                                <label class="btn btn-outline-dark" for="SOSP">SOSP</label>
 
                                                 <input type="checkbox" class="btn-check" id="OSDI" name="areas"
                                                        value="OSDI" autocomplete="off"
                                                        {% if 'OSDI' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="OSDI">OSDI</label>
+                                                <label class="btn btn-outline-dark" for="OSDI">OSDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="EuroSys" name="areas"
                                                        value="EuroSys" autocomplete="off"
                                                        {% if 'EuroSys' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="EuroSys">EuroSys</label>
+                                                <label class="btn btn-outline-dark" for="EuroSys">EuroSys</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC" name="areas"
                                                        value="USENIX-Annual-Technical-Conference" autocomplete="off"
                                                        {% if 'USENIX-Annual-Technical-Conference' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-ATC">USENIX Annual
+                                                <label class="btn btn-outline-dark" for="USENIX-ATC">USENIX Annual
                                                     Technical Conference</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-ATC-Short"
                                                        name="areas" value="USENIX-ATC-Short" autocomplete="off"
                                                        {% if 'USENIX-ATC-Short' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-ATC-Short">USENIX
+                                                <label class="btn btn-outline-dark" for="USENIX-ATC-Short">USENIX
                                                     ATC</label>
 
                                                 <input type="checkbox" class="btn-check" id="USENIX-FAST" name="areas"
                                                        value="USENIX-FAST" autocomplete="off"
                                                        {% if 'USENIX-FAST' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="USENIX-FAST">USENIX
+                                                <label class="btn btn-outline-dark" for="USENIX-FAST">USENIX
                                                     FAST</label>
 
                                                 <input type="checkbox" class="btn-check" id="FAST" name="areas"
                                                        value="FAST" autocomplete="off"
                                                        {% if 'FAST' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="FAST">FAST</label>
+                                                <label class="btn btn-outline-dark" for="FAST">FAST</label>
                                             </div>
 
                                         </div>
@@ -585,7 +588,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Programming-languages"
                                    role="button" aria-expanded="false" aria-controls="Programming-languages">Programming
                                     languages</a>
@@ -597,17 +600,17 @@
                                                 <input type="checkbox" class="btn-check" id="PLDI" name="areas"
                                                        value="PLDI" autocomplete="off"
                                                        {% if 'PLDI' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="PLDI">PLDI</label>
+                                                <label class="btn btn-outline-dark" for="PLDI">PLDI</label>
 
                                                 <input type="checkbox" class="btn-check" id="POPL" name="areas"
                                                        value="POPL" autocomplete="off"
                                                        {% if 'POPL' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="POPL">POPL</label>
+                                                <label class="btn btn-outline-dark" for="POPL">POPL</label>
 
                                                 <input type="checkbox" class="btn-check" id="OOPSLA" name="areas"
                                                        value="OOPSLA" autocomplete="off"
                                                        {% if 'OOPSLA' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="OOPSLA">OOPSLA</label>
+                                                <label class="btn btn-outline-dark" for="OOPSLA">OOPSLA</label>
                                             </div>
 
                                         </div>
@@ -617,7 +620,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Software-engineering"
                                    role="button" aria-expanded="false" aria-controls="Software-engineering">Software
                                     engineering</a>
@@ -629,29 +632,29 @@
                                                 <input type="checkbox" class="btn-check" id="ASE" name="areas"
                                                        value="ASE" autocomplete="off"
                                                        {% if 'ASE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ASE">ASE</label>
+                                                <label class="btn btn-outline-dark" for="ASE">ASE</label>
 
                                                 <input type="checkbox" class="btn-check" id="FSE" name="areas"
                                                        value="FSE" autocomplete="off"
                                                        {% if 'FSE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="FSE">FSE</label>
+                                                <label class="btn btn-outline-dark" for="FSE">FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="SIGSOFT-FSE" name="areas"
                                                        value="SIGSOFT-FSE" autocomplete="off"
                                                        {% if 'SIGSOFT-FSE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="SIGSOFT-FSE">SIGSOFT
+                                                <label class="btn btn-outline-dark" for="SIGSOFT-FSE">SIGSOFT
                                                     FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="ESEC-SIGSOFT-FSE"
                                                        name="areas" value="ESEC-SIGSOFT-FSE" autocomplete="off"
                                                        {% if 'ESEC-SIGSOFT-FSE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ESEC-SIGSOFT-FSE">ESEC/SIGSOFT
+                                                <label class="btn btn-outline-dark" for="ESEC-SIGSOFT-FSE">ESEC/SIGSOFT
                                                     FSE</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICSE" name="areas"
                                                        value="ICSE" autocomplete="off"
                                                        {% if 'ICSE' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ICSE">ICSE</label>
+                                                <label class="btn btn-outline-dark" for="ICSE">ICSE</label>
                                             </div>
 
                                         </div>
@@ -661,7 +664,7 @@
                             </li>
 
                             <li>
-                                <a class="btn btn-outline-primary" data-bs-toggle="collapse"
+                                <a class="btn btn-outline-dark" data-bs-toggle="collapse"
                                    href="#Distributed-systems-and-Dependability"
                                    role="button" aria-expanded="false"
                                    aria-controls="Distributed-systems-and-Dependability">Distributed
@@ -674,22 +677,22 @@
                                                 <input type="checkbox" class="btn-check" id="DISC" name="areas"
                                                        value="DISC" autocomplete="off"
                                                        {% if 'DISC' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="DISC">DISC</label>
+                                                <label class="btn btn-outline-dark" for="DISC">DISC</label>
 
                                                 <input type="checkbox" class="btn-check" id="DSN" name="areas"
                                                        value="DSN" autocomplete="off"
                                                        {% if 'DSN' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="DSN">DSN</label>
+                                                <label class="btn btn-outline-dark" for="DSN">DSN</label>
 
                                                 <input type="checkbox" class="btn-check" id="ICDCS" name="areas"
                                                        value="ICDCS" autocomplete="off"
                                                        {% if 'ICDCS' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="ICDCS">ICDCS</label>
+                                                <label class="btn btn-outline-dark" for="ICDCS">ICDCS</label>
 
                                                 <input type="checkbox" class="btn-check" id="PODC" name="areas"
                                                        value="PODC" autocomplete="off"
                                                        {% if 'PODC' in selected_areas %}checked{% endif %}>
-                                                <label class="btn btn-outline-primary" for="PODC">PODC</label>
+                                                <label class="btn btn-outline-dark" for="PODC">PODC</label>
                                             </div>
 
                                         </div>
@@ -709,7 +712,7 @@
                 </script>
 
                 <table id="rankings-table" class="table table-responsive">
-                    <thead>
+                    <thead id="rankings-table-head">
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Institution</th>
