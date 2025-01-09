@@ -12,15 +12,51 @@
             margin-top: 0;
         }
 
+        /* List styles */
         ul {
             list-style-type: none;
             padding: 0;
+            width: 100%;
         }
 
         li {
             margin-bottom: 5px;
+            width: 100%;
         }
 
+        /* Button styles */
+        li > .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-group-vertical {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-group-vertical > .btn {
+            width: 100%;
+            text-align: left;
+        }
+
+        .btn-group-vertical > .btn > input[type="button"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .btn-group-toggle .btn {
+            width: 100%;
+            display: block;
+        }
+
+        .form-group input[type="button"].btn {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        /* Rankings table styles */
         #rankings-table {
             width: 100%;
             border-collapse: collapse;
@@ -47,11 +83,11 @@
             cursor: pointer;
         }
 
-        {#.sub-table {#}
-        {#    width: 100%;#}
-        {#    margin-top: 10px;#}
-        {#}#}
+        #rankings-table-head {
+            background-color: #6f727b;
+        }
 
+        /* Sub-table styles */
         .sub-table th,
         .sub-table td {
             padding: 8px;
@@ -68,6 +104,7 @@
             background-color: #f9f9f9;
         }
 
+        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -85,16 +122,12 @@
             margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 30%; /* Adjust the width to 30% */
+            width: 30%;
         }
 
         #pub-distribution-chart {
             width: 100%;
             height: auto;
-        }
-
-        #rankings-table-head {
-            background-color: #6f727b;
         }
 
         .close {
@@ -112,6 +145,7 @@
             cursor: pointer;
         }
 
+        /* Help icon styles */
         .help-icon {
             display: inline-block;
             width: 16px;
